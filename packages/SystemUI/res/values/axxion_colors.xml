@@ -41,4 +41,7 @@
     <color name="pie_selected_color">#ff5c5c5c</color>
     <color name="pie_long_pressed_color">#ff8c8c8c</color>
     <color name="pie_outline_color">#ff5c5c5c</color>    
+
+    <!-- Active Display -->
+    <color name="ad_notification_background_color">#3fff</color>    
 </resources>
