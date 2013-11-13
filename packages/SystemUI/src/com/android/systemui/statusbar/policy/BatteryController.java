@@ -27,6 +27,8 @@ import java.util.ArrayList;
 public class BatteryController extends BroadcastReceiver {
     private static final String TAG = "StatusBar.BatteryController";
 
+    private int mLevel = 0;
+    private boolean mPluggedIn;
 
     private ArrayList<BatteryStateChangeCallback> mChangeCallbacks =
             new ArrayList<BatteryStateChangeCallback>();
@@ -49,6 +51,14 @@ public class BatteryController extends BroadcastReceiver {
         mChangeCallbacks.remove(cb);
     }
 
+    public int getBatteryLevel() {
+        return mLevel;
+    }
+
+    public boolean isBatteryStatusCharging() {
+        return mPluggedIn;
+    }
+        
     // For HALO
     private ArrayList<BatteryStateChangeCallbackHalo> mChangeCallbacksHalo =
             new ArrayList<BatteryStateChangeCallbackHalo>();
@@ -70,20 +80,21 @@ public class BatteryController extends BroadcastReceiver {
 
     public void unregisterController(Context context) {	
         context.unregisterReceiver(this);
+
     }
 
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
         if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
-            final int level = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
+            mLevel = intent.getIntExtra(BatteryManager.EXTRA_LEVEL, 0);
             final int status = intent.getIntExtra(BatteryManager.EXTRA_STATUS,
                     BatteryManager.BATTERY_STATUS_UNKNOWN);
 
-            boolean plugged = false;
+            mPluggedIn = false;
             switch (status) {
                 case BatteryManager.BATTERY_STATUS_CHARGING:
                 case BatteryManager.BATTERY_STATUS_FULL:
-                    plugged = true;
+                    mPluggedIn = true;
                     break;
             }
 	    // For HALO
@@ -94,7 +105,7 @@ public class BatteryController extends BroadcastReceiver {
     }
 
             for (BatteryStateChangeCallback cb : mChangeCallbacks) {
-                cb.onBatteryLevelChanged(level, plugged);
+                cb.onBatteryLevelChanged(mLevel, mPluggedIn);
             }
         }
     }
