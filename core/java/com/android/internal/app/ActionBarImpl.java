@@ -704,7 +704,6 @@ public class ActionBarImpl extends ActionBar {
             updateVisibility(false);
         }
         changeColorFromActionBar(null);
-        mActivity.changeFloatingWindowColor(Color.TRANSPARENT, Color.WHITE);
     }
 
     private void hideForActionMode() {
