@@ -65,6 +65,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.util.PrintWriterPrinter;
+import android.util.TypedValue;
 import android.util.Slog;
 import android.util.SparseArray;
 import android.view.ActionMode;
@@ -981,7 +982,7 @@ public class Activity extends ContextThemeWrapper
     final void performRestoreInstanceState(Bundle savedInstanceState) {
         onRestoreInstanceState(savedInstanceState);
         restoreManagedDialogs(savedInstanceState);
-        restoreManagedWindowLayout(savedInstanceState); 
+        restoreManagedWindowLayout(savedInstanceState);
     }
 
     /**
@@ -1092,7 +1093,7 @@ public class Activity extends ContextThemeWrapper
         }
         mWindow.setAttributes(params);
     }
-    
+
     private Dialog createDialog(Integer dialogId, Bundle state, Bundle args) {
         final Dialog dialog = onCreateDialog(dialogId, args);
         if (dialog == null) {
@@ -1197,7 +1198,7 @@ public class Activity extends ContextThemeWrapper
     }
 
     private void reloadAppColor(boolean reload) {
-	        if (getAppColorEnabled()) {
+        if (getAppColorEnabled()) {
             if (mActionBar != null) {
                 if (reload && mActionBar.isShowing()) {
                     mActionBar.changeColorFromActionBar(null);
@@ -1624,9 +1625,8 @@ public class Activity extends ContextThemeWrapper
      */
     protected void onDestroy() {
         if (DEBUG_LIFECYCLE) Slog.v(TAG, "onDestroy " + this);
-        sendAppEndBroadcast();     
+        sendAppEndBroadcast();
         mCalled = true;
-
         // dismiss any dialogs we are managing.
         if (mManagedDialogs != null) {
             final int numDialogs = mManagedDialogs.size();
@@ -1751,7 +1751,7 @@ public class Activity extends ContextThemeWrapper
                     mWindow.setAttributes(params);
                     mPreviousOrientation = config.orientation;
                 }
-            }            
+            }
         }
 
         if (mActionBar != null) {
@@ -2736,10 +2736,10 @@ public class Activity extends ContextThemeWrapper
                        }
                        break;
              }
-        } else {        
-            if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-                onUserInteraction();
-            }     
+        } else {
+             if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+                 onUserInteraction();
+             }
         }
 
         if (getWindow().superDispatchTouchEvent(ev)) {
@@ -5987,7 +5987,10 @@ public class Activity extends ContextThemeWrapper
             parent = null;
         }
 
-        mWindow = PolicyManager.makeNewWindow(this);
+        if (makeNewWindow(context, intent, info)) {
+            parent = null;
+        }
+
         mWindow.setCallback(this);
         mWindow.getLayoutInflater().setPrivateFactory(this);
         if (info.softInputMode != WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED) {
