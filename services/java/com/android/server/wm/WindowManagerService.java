@@ -3632,9 +3632,9 @@ public class WindowManagerService extends IWindowManager.Stub
             atoken.groupId = groupId;
             Task newTask = mTaskIdToTask.get(groupId);
             if (newTask == null) {
-                newTask = createTask(groupId, oldTask.mStack.mStackId, oldTask.mUserId, atoken);
+                newTask = createTask(groupId, oldTask.mStack.mStackId, oldTask.mUserId, atoken);           
             } else {
-                newTask.mAppTokens.add(atoken);
+                newTask.mAppTokens.add(atoken);            
             }
         }
     }
@@ -5194,15 +5194,6 @@ public class WindowManagerService extends IWindowManager.Stub
     @Override
     public boolean isKeyguardSecure() {
         return mPolicy.isKeyguardSecure();
-    }
-
-    @Override
-    public void showCustomIntentOnKeyguard(Intent intent) {
-        if (mContext.checkCallingOrSelfPermission(android.Manifest.permission.DEVICE_POWER)
-                != PackageManager.PERMISSION_GRANTED) {
-            return;
-        }
-        mPolicy.showCustomIntentOnKeyguard(intent);
     }
 
     @Override
@@ -10405,11 +10396,6 @@ public class WindowManagerService extends IWindowManager.Stub
     }
 
     @Override
-    public void sendHomeAction() {
-        mPolicy.sendHomeAction();
-    }
-
-    @Override
     public void lockNow(Bundle options) {
         mPolicy.lockNow(options);
     }
@@ -11108,6 +11094,15 @@ public class WindowManagerService extends IWindowManager.Stub
         return mLastStatusBarVisibility;
     }
 
+    private void moveTaskAndActivityToFront(int taskId) {
+        try {
+            moveTaskToTop(taskId);
+            mActivityManager.moveTaskToFront(taskId, 0, null);
+        } catch (RemoteException e) {
+            Log.e(TAG, "Cannot move the activity to front", e);
+        }
+    }
+
     private float getDegreesForRotation(int value) {
         switch (value) {
             case Surface.ROTATION_90:
@@ -11232,14 +11227,19 @@ public class WindowManagerService extends IWindowManager.Stub
         }
         int minDimension = Math.min(mRealDisplayMetrics.widthPixels, mRealDisplayMetrics.heightPixels);
         float scaleRatio = 100.0f / minDimension;
+        int rot = getDefaultDisplayContentLocked().getDisplay().getRotation();
+        rot = (rot + mSfHwRotation) % 4;
         int statusBar = mPolicy.getStatusbarDisplayHeight();
         int navbar = mPolicy.getNavigationbarDisplayHeight(mRotation);
-        int statusBarH = Math.round(statusBar * scaleRatio);
-        int statusBarW = bitmap.getWidth() / 3;
-        int navBarH = Math.round(navbar * scaleRatio);
-        int navBarY = bitmap.getHeight() - (navBarH + statusBarH);
-        int colorTop = ColorUtils.getMainColorFromBitmap(bitmap, statusBarW, statusBarH);
-        int colorBottom = ColorUtils.getMainColorFromBitmap(bitmap, statusBarW, navBarY);
+        int h = Math.round((statusBar + navbar) * scaleRatio);
+        int w = Math.round(h * scaleRatio);
+        int x = h;
+        int y = bitmap.getHeight() - (h - w);
+        if (rot == Surface.ROTATION_90 || rot == Surface.ROTATION_270) {
+            x = bitmap.getWidth() - h;
+        }
+        int colorTop = ColorUtils.getMainColorFromBitmap(bitmap, x, h);
+        int colorBottom = ColorUtils.getMainColorFromBitmap(bitmap, x, y);
         bitmap.recycle();
         return new int[] {colorTop, colorBottom};
     }
@@ -11262,7 +11262,7 @@ public class WindowManagerService extends IWindowManager.Stub
             Log.e(TAG, "Cannot move the activity to front", e);
         }
     }
-
+    
     public void notifyFloatActivityTouched(IBinder token, boolean force) {
         synchronized(mWindowMap) {
               boolean changed = false;
