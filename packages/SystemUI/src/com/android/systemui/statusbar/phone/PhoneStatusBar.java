@@ -656,6 +656,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
             mReminderEnabled = reminderHolder;
             updateReminder();
+
+    private void updateBatteryIcons() {
+        if (mBattery != null && mCircleBattery != null) {
+            mBattery.updateSettings(false);
+            mCircleBattery.updateSettings(false);
         }
     }
 
