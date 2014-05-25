@@ -25,5 +25,21 @@
     <!-- Setting confirmation dialog strings. Shown when any UI interaction can be modified by user input -->
     <string name="setting_confirmation_ask_me_later">Ask later</string>
     <string name="setting_confirmation_yes">Yes</string>
-    <string name="setting_confirmation_no">No</string>    
+    <string name="setting_confirmation_no">No</string>   
+    
+   <!-- label for item that takes On-The-Go in the phone options dialog -->
+   <string name="global_action_onthego">On-The-Go Mode</string>    
+    
+   <!-- Heads up -->
+   <string name="permlab_changeHeadsUpState">enable or disable heads up</string>
+   <string name="permdesc_changeHeadsUpState">Allows the application to change whether another application is allowed to show normal notifications as heads up notification.</string>
+
+  <!-- label for nav bar item in phone options dialog -->
+  <string name="global_actions_nav_bar_mode">Navigation bar</string>
+  <!-- status message in phone options dialog for when navigation bar is on -->
+  <string name="global_actions_nav_bar_mode_on_status">Navigation bar is ON</string>
+  <!-- status message in phone options dialog for when navigation bar is off -->
+  <string name="global_actions_nav_bar_mode_off_status">Navigation bar is OFF</string>  <!-- Error message if user want to try to disable all navigation options -->
+  <string name="disable_navigation_pie_error">You cannot disable the navigation bar. No other navigation is enabled. Enable first pie controls to turn off the navigation bar.</string>
+  
 </resources>
