@@ -2941,6 +2941,13 @@ public final class Settings {
         public static final String PIE_MIRROR_RIGHT = "pie_mirror_right";
 
         /**
+         * Heads Up in Floating Window
+         *
+         * @hide
+         */
+        public static final String HEADS_UP_FLOATING_WINDOW = "heads_up_floating_window";
+        
+        /**
          * Pie show text (0 or 1)
          * @hide
          */
