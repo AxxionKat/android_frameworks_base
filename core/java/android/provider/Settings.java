@@ -4197,7 +4197,14 @@ public final class Settings {
         public static final String HEADS_UP_SHOW_UPDATE = "heads_up_show_update";
 
         /**
-         * User favorite tasks for recent panel.
+         * Heads Up in Floating Window
+         *
+         * @hide
+         */
+        public static final String HEADS_UP_FLOATING_WINDOW = "heads_up_floating_window";
+
+        /**
+		 * User favorite tasks for recent panel.
          * @hide
          */
         public static final String RECENT_PANEL_FAVORITES = "recent_panel_favorites";
