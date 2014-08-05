@@ -27,6 +27,7 @@ public class ComposedIconInfo implements Parcelable {
     public float iconScale;
     public int iconDensity;
     public int iconSize;
+    public float[] colorFilter;
 
     public ComposedIconInfo() {
         super();
@@ -44,8 +45,15 @@ public class ComposedIconInfo implements Parcelable {
                 iconBacks[i] = new BitmapDrawable((Bitmap) source.readParcelable(bmpClassLoader));
             }
         }
-        iconMask = new BitmapDrawable((Bitmap) source.readParcelable(bmpClassLoader));
-        iconUpon = new BitmapDrawable((Bitmap) source.readParcelable(bmpClassLoader));
+        iconMask = source.readInt();
+        iconUpon = source.readInt();
+        int colorFilterSize = source.readInt();
+        if (colorFilterSize > 0) {
+            colorFilter = new float[colorFilterSize];
+            for (int i = 0; i < colorFilterSize; i++) {
+                colorFilter[i] = source.readFloat();
+            }
+        }
     }
 
     @Override
@@ -64,8 +72,16 @@ public class ComposedIconInfo implements Parcelable {
                 dest.writeParcelable(d != null ? d.getBitmap() : null, flags);
             }
         }
-        dest.writeParcelable(iconMask != null ? iconMask.getBitmap() : null, flags);
-        dest.writeParcelable(iconUpon != null ? iconUpon.getBitmap() : null, flags);
+        dest.writeInt(iconMask);
+        dest.writeInt(iconUpon);
+        if (colorFilter != null) {
+            dest.writeInt(colorFilter.length);
+            for (float val : colorFilter) {
+                dest.writeFloat(val);
+            }
+        } else {
+            dest.writeInt(0);
+        }
     }
 
     public static final Creator<ComposedIconInfo> CREATOR
