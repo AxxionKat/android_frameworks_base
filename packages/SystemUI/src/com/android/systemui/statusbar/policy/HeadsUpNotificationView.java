@@ -218,6 +218,7 @@ public class HeadsUpNotificationView extends FrameLayout implements SwipeHelper.
     }
 
     @Override
+<<<<<<< HEAD
     public boolean dispatchKeyEvent(KeyEvent event) {
         boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
         switch (event.getKeyCode()) {
@@ -228,6 +229,9 @@ public class HeadsUpNotificationView extends FrameLayout implements SwipeHelper.
                 return true;
         }
         return super.dispatchKeyEvent(event);
+=======
+    public void onChildTriggered(View v) {
+>>>>>>> 7fe2689... Fix and and add Incoming Call in BG (Thanks SLIM)
     }
 
     @Override

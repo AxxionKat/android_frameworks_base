@@ -3108,7 +3108,7 @@ public final class Settings {
         * @hide
         */
         public static final String NOTIFICATION_BACKGROUND_ALPHA = "notification_background_alpha";
-  
+
         /**
          * Color of QuickSettings tiles text
          * @hide

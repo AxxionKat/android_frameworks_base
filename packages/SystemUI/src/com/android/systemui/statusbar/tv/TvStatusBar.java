@@ -163,6 +163,24 @@ public class TvStatusBar extends BaseStatusBar {
     }
 
     @Override
+    public boolean panelsEnabled() {
+        return false;
+    }
+
+    @Override
+    public void populateHeadsUp(IBinder key,
+            StatusBarNotification notification, NotificationData.Entry shadeEntry) {
+    }
+
+    @Override
+    public void hideHeadsUp() {
+    }
+
+    @Override
+    public void updateHeadsUpPosition(boolean statusBarShows) {
+    }
+
+    @Override
     public void animateExpandSettingsPanel(boolean flip) {
     }
 
