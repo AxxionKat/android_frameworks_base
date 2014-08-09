@@ -1337,7 +1337,8 @@ public class NotificationManagerService extends INotificationManager.Stub
             boolean queryRemove = false;
             boolean packageChanged = false;
             boolean cancelNotifications = true;
-            
+            boolean ledScreenOn = Settings.System.getInt(
+                mContext.getContentResolver(), Settings.System.LED_SCREEN_ON, 0) == 1;            
             if (action.equals(Intent.ACTION_PACKAGE_ADDED)
                     || (queryRemove=action.equals(Intent.ACTION_PACKAGE_REMOVED))
                     || action.equals(Intent.ACTION_PACKAGE_RESTARTED)
@@ -1467,6 +1468,20 @@ public class NotificationManagerService extends INotificationManager.Stub
                     Settings.System.NOTIFICATION_LIGHT_PULSE_CUSTOM_ENABLE), false, this, UserHandle.USER_ALL);
             resolver.registerContentObserver(Settings.System.getUriFor(
                     Settings.System.NOTIFICATION_LIGHT_PULSE_CUSTOM_VALUES), false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUIET_HOURS_END),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUIET_HOURS_MUTE),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUIET_HOURS_STILL),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.System.getUriFor(
+                    Settings.System.QUIET_HOURS_DIM),
+                    false, this, UserHandle.USER_ALL);
+            resolver.registerContentObserver(Settings.Global.getUriFor(
+                    Settings.Global.BATTERY_SAVER_LED_DISABLE), false, this, UserHandle.USER_ALL);
             update(null);
         }
 
@@ -2613,6 +2628,11 @@ public class NotificationManagerService extends INotificationManager.Stub
 
     // lock on mNotificationList
     private void updateLightsLocked() {
+		
+    // Get ROMControl "flash when screen ON" flag
+        boolean ledScreenOn = Settings.System.getInt(
+            mContext.getContentResolver(), Settings.System.LED_SCREEN_ON, 0) == 1;		
+		
         // handle notification lights
         if (mLedNotification == null) {
             // use most recent light with highest score
@@ -2633,7 +2653,7 @@ public class NotificationManagerService extends INotificationManager.Stub
             enableLed = false;
         } else if (isLedNotificationForcedOn(mLedNotification)) {
             enableLed = true;
-        } else if (mInCall || (mScreenOn && !mDreaming)) {
+        } else if (mInCall || (mScreenOn && !mDreaming && !ledScreenOn)) {
             enableLed = false;
         } else if (QuietHoursUtils.inQuietHours(mContext, Settings.System.QUIET_HOURS_DIM)) {
             enableLed = false;
