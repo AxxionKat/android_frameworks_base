@@ -41,6 +41,7 @@ import android.content.pm.UserInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.ContentObserver;
 import android.graphics.drawable.Drawable;
+import android.Manifest;
 import android.media.AudioManager;
 import android.net.ConnectivityManager;
 import android.net.Uri;
@@ -93,6 +94,7 @@ import android.os.IBinder;
 import android.os.Messenger;
 import android.os.RemoteException;
 
+import com.android.internal.util.nameless.NamelessActions;
 import com.android.internal.util.slim.ButtonsConstants;
 import com.android.internal.util.slim.SlimActions;
 
@@ -495,6 +497,7 @@ class GlobalActions implements DialogInterface.OnDismissListener, DialogInterfac
                         }
                     }
             );
+        }        
 
         // next: Nav Bar toggle
         boolean showNavBar = Settings.System.getBoolean(cr,
