@@ -32,7 +32,6 @@ import android.widget.LinearLayout;
 import com.android.systemui.ExpandHelper;
 import com.android.systemui.R;
 import com.android.systemui.SwipeHelper;
-import com.android.systemui.statusbar.notification.NotificationHelper;
 import com.android.systemui.statusbar.BaseStatusBar;
 import com.android.systemui.statusbar.NotificationData;
 
@@ -55,9 +54,6 @@ public class HeadsUpNotificationView extends FrameLayout implements SwipeHelper.
 
     private NotificationData.Entry mHeadsUp;
 
-    // Notification helper
-    protected NotificationHelper mNotificationHelper;
-
     public HeadsUpNotificationView(Context context, AttributeSet attrs) {
         this(context, attrs, 0);
     }
@@ -72,8 +68,6 @@ public class HeadsUpNotificationView extends FrameLayout implements SwipeHelper.
         mBar = bar;
     }
 
-<<<<<<< HEAD
-=======
     public void setSnoozeVisibility(boolean show) {
         mSnoozeButtonVisibility = show;
         if (mSnoozeButton != null) {
@@ -81,24 +75,14 @@ public class HeadsUpNotificationView extends FrameLayout implements SwipeHelper.
         }
     }
 
-    public void setNotificationHelper(NotificationHelper notificationHelper) {
-        mNotificationHelper = notificationHelper;
-    }
-
->>>>>>> 3a34612... Launch Heads Up in floating window [1/2]
     public ViewGroup getHolder() {
         return mContentHolder;
     }
 
     public boolean setNotification(NotificationData.Entry headsUp) {
         mHeadsUp = headsUp;
-<<<<<<< HEAD
-        mHeadsUp.row.setExpanded(false);
-=======
         mHeadsUpIsExpanded = isExpanded;
-        mHeadsUp.content.setOnClickListener(mNotificationHelper.getNotificationClickListener(headsUp, true, false));
         mHeadsUp.row.setExpanded(isExpanded && mHeadsUp.row.isExpandable());
->>>>>>> 3a34612... Launch Heads Up in floating window [1/2]
         if (mContentHolder == null) {
             // too soon!
             return false;
@@ -241,20 +225,7 @@ public class HeadsUpNotificationView extends FrameLayout implements SwipeHelper.
     }
 
     @Override
-<<<<<<< HEAD
-    public boolean dispatchKeyEvent(KeyEvent event) {
-        boolean down = event.getAction() == KeyEvent.ACTION_DOWN;
-        switch (event.getKeyCode()) {
-            case KeyEvent.KEYCODE_BACK:
-                if (!down && !event.isCanceled()) {
-                    mBar.hideHeadsUp();
-                }
-                return true;
-        }
-        return super.dispatchKeyEvent(event);
-=======
     public void onChildTriggered(View v) {
->>>>>>> 7fe2689... Fix and and add Incoming Call in BG (Thanks SLIM)
     }
 
     @Override
