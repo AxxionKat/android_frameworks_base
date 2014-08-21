@@ -37,7 +37,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.content.res.ThemeConfig;
-import android.database.ContentObserver;
 import android.content.res.Resources;
 import android.content.ServiceConnection;
 import android.database.ContentObserver;
@@ -734,8 +733,6 @@ public abstract class BaseStatusBar extends SystemUI implements
                 final PendingIntent contentIntent = sbNotification.getNotification().contentIntent;
                 if (packageNameF == null) return false;
                 if (v.getWindowToken() == null) return false;
-                }
-                
                 mNotificationBlamePopup = new PopupMenu(mContext, v);
                 mNotificationBlamePopup.getMenuInflater().inflate(
                         R.menu.notification_popup_menu,
@@ -801,8 +798,9 @@ public abstract class BaseStatusBar extends SystemUI implements
                 mNotificationBlamePopup.show();
 
                 return true;
-            }
-        };
+	     }
+	  };
+    }
 
     class FakeClearUserDataObserver extends IPackageDataObserver.Stub {
         public void onRemoveCompleted(final String packageName, final boolean succeeded) {
