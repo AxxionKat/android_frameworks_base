@@ -212,6 +212,9 @@ public class EqualizerTile extends QuickSettingsTile {
     private boolean isMusicPlaying() {
         switch (mCurrentPlayState) {
             case RemoteControlClient.PLAYSTATE_PLAYING:
+                if (mWifiDisplayActive) {
+                    return true;
+                }
                 // Transport controls include remote playback clients (e.g. Chromecast)
                 // so we don't want to return true in this case to avoid an empty
                 // equalizer tile.
