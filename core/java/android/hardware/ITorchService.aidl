@@ -24,4 +24,5 @@ interface ITorchService {
     void onCameraOpened(IBinder token, int cameraId);
     void onCameraClosed(int cameraId);
     boolean onStartingTorch(int cameraId);
+    void onStopTorch();
 }
