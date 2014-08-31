@@ -2461,13 +2461,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     final int FLIP_DURATION = (FLIP_DURATION_IN + FLIP_DURATION_OUT);
 
     Animator mScrollViewAnim, mFlipSettingsViewAnim, mNotificationButtonAnim,
-<<<<<<< HEAD
-        mSettingsButtonAnim, mHaloButtonAnim, mClearButtonAnim, mRibbonViewAnim, mAddTileButtonAnim;
-        
-=======
         mSettingsButtonAnim, mClearButtonAnim, mRibbonViewAnim;
-
->>>>>>> parent of 1bc87e7... Better expose 'QS Tiles and layout' function
+        
     @Override
     public void animateExpandNotificationsPanel() {
         if (SPEW) Log.d(TAG, "animateExpand: mExpandedVisible=" + mExpandedVisible);
@@ -3673,17 +3668,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             }
         }
     };
-
-<<<<<<< HEAD
-    private View.OnClickListener mAddTileButtonListener = new View.OnClickListener() {
-
-        public void onClick(View v) {
-            Intent intent = new Intent();
-            intent.setClassName("com.android.settings",
-                    "com.android.settings.Settings$QuickSettingsConfigActivity");
-            startActivityDismissingKeyguard(intent, true);
-        }
-    };
     
         private View.OnClickListener mHaloButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
@@ -3697,8 +3681,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
     };
 
-=======
->>>>>>> parent of 1bc87e7... Better expose 'QS Tiles and layout' function
     private View.OnClickListener mNotificationButtonListener = new View.OnClickListener() {
         public void onClick(View v) {
             animateExpandNotificationsPanel();
