@@ -51,6 +51,7 @@ import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.provider.Settings;
 
 import com.android.internal.widget.SizeAdaptiveLayout;
 import com.android.systemui.R;
@@ -330,16 +331,37 @@ public class NotificationHelper {
                 | state == TelephonyManager.SIM_STATE_PUK_REQUIRED
                 | state == TelephonyManager.SIM_STATE_NETWORK_LOCKED;
     }
+         
+     // THIS IS FOR HEADSUP FLOATING WINDOW    
+        
+        // we need to know which is the foreground app
+        mActivityManager = (ActivityManager) mContext.getSystemService(Context.ACTIVITY_SERVICE);
 
-    public boolean isUserOnLauncher() {
-        // Get default launcher name
-        Intent intent = new Intent(Intent.ACTION_MAIN);
-        intent.addCategory(Intent.CATEGORY_HOME);
-        ResolveInfo resolveInfo = mContext.getPackageManager().resolveActivity(intent,
-                                              PackageManager.MATCH_DEFAULT_ONLY);
-        String currentHomePackage = resolveInfo.activityInfo.packageName;
-
-        // compare and return result
-        return getForegroundPackageName().equals(currentHomePackage);
+    public String getForegroundPackageName() {
+        List<RunningTaskInfo> taskInfo = mActivityManager.getRunningTasks(1);
+        ComponentName componentInfo = taskInfo.get(0).topActivity;
+        return componentInfo.getPackageName();
     }
+
+    public NotificationClicker getNotificationClickListener(Entry entry, boolean floating) {
+        NotificationClicker intent = null;
+        final PendingIntent contentIntent = entry.notification.getNotification().contentIntent;
+        if (contentIntent != null) {
+            intent = mStatusBar.makeClicker(contentIntent,
+                    entry.notification.getPackageName(), entry.notification.getTag(),
+                    entry.notification.getId());
+            boolean makeFloating = floating
+                    // if the notification is from the foreground app, don't open in floating mode
+                    && !entry.notification.getPackageName().equals(getForegroundPackageName())
+                    && openInFloatingMode();
+
+            intent.makeFloating(makeFloating);
+        }
+        return intent;
+    }
+    
+    public boolean openInFloatingMode() {
+        return Settings.System.getBoolean(mContext.getContentResolver(),
+                Settings.System.HEADS_UP_FLOATING_WINDOW, true);
+    }     
 }
