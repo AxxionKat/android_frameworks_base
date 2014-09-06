@@ -333,7 +333,7 @@ public class NotificationHelper {
     }
          
      // THIS IS FOR HEADSUP FLOATING WINDOW    
-    
+
     public String getForegroundPackageName() {
         List<RunningTaskInfo> taskInfo = mActivityManager.getRunningTasks(1);
         ComponentName componentInfo = taskInfo.get(0).topActivity;
