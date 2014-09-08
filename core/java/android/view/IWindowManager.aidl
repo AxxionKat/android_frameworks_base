@@ -244,6 +244,12 @@ interface IWindowManager
     boolean hasNavigationBar();
 
     /**
+     * Send ACTION_HOME event from AwesomeAction class
+     * @hide
+     */
+    void sendHomeAction();
+
+    /**
      * Device can generate KEY_ACTION_MENU keypress
      */
     boolean hasMenuKeyEnabled();

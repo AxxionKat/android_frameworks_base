@@ -1163,6 +1163,12 @@ public interface WindowManagerPolicy {
     public boolean hasNavigationBar();
 
     /**
+     * sends ACTION_HOME from AwesomeAction
+     * @hide
+     */
+    public void sendHomeAction();
+
+    /**
      * Specifies whether device can generate KEY_ACTION_MENU keypress
      */
     public boolean hasMenuKeyEnabled();
