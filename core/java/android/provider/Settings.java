@@ -4154,6 +4154,12 @@ public final class Settings {
             "navigation_ring_targets_1",
             "navigation_ring_targets_2",
         };
+        
+        /**
+         * siracuervo: Thanks to pac! 
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_BUTTONS = "navigation_bar_buttons";
 
         /**
          * Volume key controls ringtone or media sound stream
@@ -4226,6 +4232,30 @@ public final class Settings {
          * @hide
          */
         public static final String KEY_APP_SWITCH_LONG_PRESS_ACTION = "key_app_switch_long_press_action";
+
+
+        public static final String INCOMING_CALL_STYLE = "incoming_call_style";
+
+        /**
+         * Show arrow buttons as left and right dpad keys
+         * @hide
+         */
+        public static final String NAVIGATION_BAR_DPAD_KEYS = "navigation_bar_dpad_keys";
+
+        /**
+         * @hide
+         */
+        public static final String NAVIGATION_MENU = "navigation_menu";
+
+        /**
+         * @hide
+         */
+        public static final String NAVIGATION_MENU_FORCE = "navigation_menu_force";
+
+        /** @hide */
+        public static final int INCOMING_CALL_STYLE_CLASSIC = 0;
+        /** @hide */
+        public static final int INCOMING_CALL_STYLE_FULLSCREEN_PHOTO = 1;
 
         /**
          * Weather to minimize lockscreen challenge on screen turned on
@@ -4387,18 +4417,6 @@ public final class Settings {
          * @hide
          */
         public static final String T9_SEARCH_INPUT_LOCALE = "t9_search_input_locale";
-
-        /**
-         * The style of the incoming call screen.
-         * Default is {@link INCOMING_CALL_STYLE_FULLSCREEN_PHOTO}.
-         * @hide
-         */
-        public static final String INCOMING_CALL_STYLE = "incoming_call_style";
-
-        /** @hide */
-        public static final int INCOMING_CALL_STYLE_CLASSIC = 0;
-        /** @hide */
-        public static final int INCOMING_CALL_STYLE_FULLSCREEN_PHOTO = 1;
 
         /**
          * Override and forcefully disable the fullscreen keyboard
@@ -4988,13 +5006,6 @@ public final class Settings {
         @Deprecated
         public static final String WIFI_WATCHDOG_PING_TIMEOUT_MS =
             Secure.WIFI_WATCHDOG_PING_TIMEOUT_MS;
-
-        /**
-         * boolean value. toggles using arrow key locations on nav bar
-         * as left and right dpad keys
-         * @hide
-         */
-        public static final String NAVIGATION_BAR_MENU_ARROW_KEYS = "navigation_bar_menu_arrow_keys";
 
     }
 

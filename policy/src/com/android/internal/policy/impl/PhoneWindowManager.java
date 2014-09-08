@@ -76,6 +76,7 @@ import android.service.gesture.EdgeGestureManager;
 import com.android.internal.os.DeviceKeyHandler;
 
 import com.android.internal.util.cm.ActionUtils;
+import com.android.internal.util.aokp.AwesomeAction;
 import dalvik.system.DexClassLoader;
 
 import android.util.DisplayMetrics;
@@ -1832,6 +1833,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (updateRotation) {
             updateRotation(true);
         }
+    }
+
+    @Override
+    public void sendHomeAction() {
+        launchHomeFromHotKey();
     }
 
     private void enablePointerLocation() {
@@ -6520,6 +6526,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // oh well
             }
         }
+        AwesomeAction.setCurrentUser(newUserId);
         setLastInputMethodWindowLw(null, null);
         mCurrentUser = newUserId;
     }
