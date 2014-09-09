@@ -2081,8 +2081,6 @@
   <java-symbol type="anim" name="slide_out_right_no_fade" />
   <java-symbol type="anim" name="no_animation" />
   
-=======
->>>>>>> cca7647487d10046ebebce550e45ccb58248f453
   <!-- Proximity check on screen on -->
   <java-symbol type="bool" name="config_proximityCheckOnWake" />
 
