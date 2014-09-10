@@ -66,7 +66,10 @@ public class CommandQueue extends IStatusBar.Stub {
     private static final int MSG_HIDE_HEADS_UP_CANDIDATE    = 26 << MSG_SHIFT;
     private static final int MSG_UPDATE_HEADS_UP_POSITION   = 27 << MSG_SHIFT;
     private static final int MSG_SET_PIE_TRIGGER_MASK       = 28 << MSG_SHIFT;
-
+    private static final int MSG_SET_ACTIONBAR_STATUS       = 29 << MSG_SHIFT;
+    private static final int MSG_SET_APPCOLOR_STATUS        = 30 << MSG_SHIFT;
+    private static final int MSG_SET_PARAMS_STATUS          = 31 << MSG_SHIFT;
+ 
     public static final int FLAG_EXCLUDE_NONE = 0;
     public static final int FLAG_EXCLUDE_SEARCH_PANEL = 1 << 0;
     public static final int FLAG_EXCLUDE_RECENTS_PANEL = 1 << 1;
@@ -118,6 +121,9 @@ public class CommandQueue extends IStatusBar.Stub {
         public void toggleScreenshot();
         public void toggleLastApp();
         public void toggleKillApp();
+        public void sendActionColorBroadcast(int st_color, int ic_color);
+        public void sendAppColorBroadcast(int duration);
+        public void sendAppImmersiveMode(int whats);        
     }
 
     public CommandQueue(Callbacks callbacks, StatusBarIconList list) {
@@ -318,11 +324,34 @@ public class CommandQueue extends IStatusBar.Stub {
             mHandler.sendEmptyMessage(MSG_TOGGLE_LAST_APP);
         }
     }
-
     public void toggleKillApp() {
+       synchronized (mList) {
+           mHandler.removeMessages(MSG_TOGGLE_KILL_APP);
+           mHandler.sendEmptyMessage(MSG_TOGGLE_KILL_APP);
+        }
+    }
+    
+    public void sendActionColorBroadcast(int st_color, int ic_color) {
         synchronized (mList) {
-            mHandler.removeMessages(MSG_TOGGLE_KILL_APP);
-            mHandler.sendEmptyMessage(MSG_TOGGLE_KILL_APP);
+            mHandler.removeMessages(MSG_SET_ACTIONBAR_STATUS);
+            mHandler.obtainMessage(MSG_SET_ACTIONBAR_STATUS,
+                st_color, ic_color, null).sendToTarget();
+        }
+    }
+
+    public void sendAppColorBroadcast(int duration) {
+        synchronized (mList) {
+            mHandler.removeMessages(MSG_SET_APPCOLOR_STATUS);
+            mHandler.obtainMessage(MSG_SET_APPCOLOR_STATUS,
+                duration, 0, null).sendToTarget();
+        }
+    }
+
+    public void sendAppImmersiveMode(int whats) {
+        synchronized (mList) {
+            mHandler.removeMessages(MSG_SET_PARAMS_STATUS);
+            mHandler.obtainMessage(MSG_SET_PARAMS_STATUS,
+                whats, 0, null).sendToTarget();
         }
     }
 
@@ -436,8 +465,16 @@ public class CommandQueue extends IStatusBar.Stub {
                 case MSG_TOGGLE_KILL_APP:
                     mCallbacks.toggleKillApp();
                     break;
+                case MSG_SET_ACTIONBAR_STATUS:
+                    mCallbacks.sendActionColorBroadcast(msg.arg1, msg.arg2);
+                    break;
+                case MSG_SET_APPCOLOR_STATUS:
+                    mCallbacks.sendAppColorBroadcast(msg.arg1);
+                    break;
+                case MSG_SET_PARAMS_STATUS:
+                    mCallbacks.sendAppImmersiveMode(msg.arg1);
+                    break;                    
             }
         }
     }
 }
-

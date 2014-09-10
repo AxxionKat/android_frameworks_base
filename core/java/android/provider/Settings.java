@@ -3255,6 +3255,49 @@ public final class Settings {
          * @hide
          */
         public static final String QS_DYNAMIC_WIFI = "qs_dyanmic_wifi";
+        
+        /**
+         * option for tinted statusbar
+         * 0 = disabled
+         * 1 = follow actionbar
+         * 2 = follow screen
+         * 3 = follow all
+         * @hide
+         */
+        public static final String STATUS_BAR_TINTED_COLOR = "status_bar_tinted_color";
+
+        /**
+         * option for systemui color
+         * 0 = statusbar
+         * 1 = navigationbar
+         * 2 = both
+         * @hide
+         */
+        public static final String STATUS_BAR_TINTED_OPTION = "status_bar_tinted_option";
+
+        /**
+         * option for filter tinted statusbar
+         * @hide
+         */
+        public static final String STATUS_BAR_TINTED_FILTER = "status_bar_tinted_filter";
+
+        /**
+         * option for filter gradient statusbar
+         * @hide
+         */
+        public static final String STATUS_BAR_TINTED_GRADIENT = "status_bar_tinted_gradient";
+
+        /**
+         * option for transparent statusbar
+         * @hide
+         */
+        public static final String STATUS_BAR_TINTED_STATBAR_TRANSPARENT = "status_bar_tinted_statbar_transparent";
+
+        /**
+         * option for transparent navbar
+         * @hide
+         */
+        public static final String STATUS_BAR_TINTED_NAVBAR_TRANSPARENT = "status_bar_tinted_navbar_transparent";
 
         /**
          * Quick Settings Quick Pulldown
