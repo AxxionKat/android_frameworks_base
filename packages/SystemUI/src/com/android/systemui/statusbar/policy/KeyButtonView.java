@@ -30,6 +30,8 @@ import android.net.Uri;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
+import android.graphics.PorterDuff;
+import android.hardware.input.InputManager;
 import android.os.SystemClock;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -46,6 +48,7 @@ import com.android.internal.statusbar.IStatusBarService;
 import com.android.internal.util.aokp.AwesomeAction;
 import com.android.internal.util.aokp.AwesomeConstants.AwesomeConstant;
 import com.android.internal.util.aokp.NavBarHelpers;
+import com.android.internal.util.omni.ColorUtils;
 import com.android.systemui.R;
 
 import java.io.File;
@@ -95,6 +98,7 @@ public class KeyButtonView extends ImageView {
     volatile boolean mRecentsPreloaded;
 
     Runnable mCheckLongPress = new Runnable() {
+        @Override
         public void run() {
             if (isPressed()) {
                 removeCallbacks(mSingleTap);
@@ -242,6 +246,24 @@ public class KeyButtonView extends ImageView {
         if (mGlowBG == null) return;
         mGlowAlpha = x;
         invalidate();
+    }
+
+    public void setColorFilterBg(int color, PorterDuff.Mode mode) {
+        setColorFilter(color, mode);
+        if (mGlowBG != null) {
+            int colorBg = ColorUtils.lighten(color, 0.5f);
+            if (ColorUtils.isBrightColor(color)) {
+                colorBg = ColorUtils.darken(color, 0.5f);
+            }
+            mGlowBG.setColorFilter(colorBg, mode);
+        }
+    }
+
+    public void clearColorFilterBg() {
+        clearColorFilter();
+        if (mGlowBG != null) {
+            mGlowBG.clearColorFilter();
+        }
     }
 
     public float getGlowScale() {
