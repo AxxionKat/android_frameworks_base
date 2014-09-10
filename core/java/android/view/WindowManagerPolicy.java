@@ -1242,4 +1242,24 @@ public interface WindowManagerPolicy {
      * @hide
      */
     public void toggleGlobalMenu();
+
+    /**
+     * @hide
+     */
+    public int getStatusbarDisplayHeight();
+
+    /**
+     * @hide
+     */
+    public int getNavigationbarDisplayHeight(int rotation);
+
+    /**
+     * @hide
+     */
+    public void sendActionColorBroadcast(int st_color, int ic_color);
+
+    /**
+     * @hide
+     */
+    public void sendAppColorBroadcast(int duration);
 }
