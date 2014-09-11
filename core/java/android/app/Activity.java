@@ -967,6 +967,9 @@ public class Activity extends ContextThemeWrapper
         mPreviousOrientation = getResources().getConfiguration().orientation;
         mScaleGestureDetector = new ScaleGestureDetector(getApplicationContext(), mScaleGestureListener);
         mScaleGestureDetector.setQuickScaleEnabled(false);
+    	Intent intent  = new Intent("tb.newactivity");
+    	intent.putExtra("packagename",getPackageName());
+    	sendBroadcast(intent);
     }
 
     /**

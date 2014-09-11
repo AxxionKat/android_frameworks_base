@@ -27,6 +27,7 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Insets;
 import android.graphics.Paint;
 import android.graphics.Path;
@@ -2673,6 +2674,9 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
      */
     @android.view.RemotableViewMethod
     public void setHighlightColor(int color) {
+	int loadedColor = Resources.getHighLightColor(getContext());
+	if (loadedColor != 0)
+		color = loadedColor;
         if (mHighlightColor != color) {
             mHighlightColor = color;
             invalidate();
@@ -5096,6 +5100,17 @@ public class TextView extends View implements ViewTreeObserver.OnPreDrawListener
 
             layout = mHintLayout;
         }
+
+	if (color == Color.parseColor("#33b5e5")) {
+	    TypedArray a = getContext().getTheme().obtainStyledAttributes(
+			new int[] {android.R.attr.colorBackground});
+	      int bgcolor = a.getColor(0,  0xFF00FF);
+	      if (bgcolor == Color.BLACK) {
+		  color = Color.WHITE;
+	      } else {
+		  color = Color.parseColor("#3e3e3e");
+	      }
+	}
 
         mTextPaint.setColor(color);
         mTextPaint.drawableState = getDrawableState();
