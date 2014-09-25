@@ -57,10 +57,8 @@ interface INotificationManager
     boolean isHaloPolicyBlack();
     boolean isPackageAllowedForHalo(String pkg);
 
-    // Peek and floating window
-    void setPeekBlacklistStatus(String pkg, boolean status);
+    // Floating window
     void setFloatingModeBlacklistStatus(String pkg, boolean status);
-    boolean isPackageAllowedForPeek(String pkg);
     boolean isPackageAllowedForFloatingMode(String pkg);
 
     StatusBarNotification[] getActiveNotificationsFromSystemListener(in INotificationListener token);

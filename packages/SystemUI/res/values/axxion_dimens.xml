@@ -65,15 +65,6 @@
     <!-- Heads up -->
     <dimen name="heads_up_bottom_gap">5dp</dimen>
     
-    <!-- Notification peek dimens -->
-    <dimen name="item_padding">5dp</dimen>
-    <dimen name="small_notification_icon_size">30dp</dimen>
-    <dimen name="small_notification_icon_padding">2dp</dimen>
-    <dimen name="notification_icon_size">46dp</dimen>
-    <dimen name="notification_text_width">300dp</dimen>
-    <dimen name="clock_padding">10dp</dimen>
-    <dimen name="clock_size">15dp</dimen> 
-    
     <!-- Active Display -->
     <!-- Top margin for overflow notifications container shown in the P.O.R.N. view -->
     <dimen name="glowpad_overflow_notifications_margin_top">64dp</dimen>
@@ -106,5 +97,5 @@
     <dimen name="navigation_tablet_key_padding">25dip</dimen>
     <dimen name="navigation_tablet_key_width">128dip</dimen>
     <dimen name="navigation_tablet_key_padding_land">42dip</dimen>
-    <dimen name="navigation_tablet_key_width_land">162dip</dimen>       
+    <dimen name="navigation_tablet_key_width_land">162dip</dimen>     
 </resources>
