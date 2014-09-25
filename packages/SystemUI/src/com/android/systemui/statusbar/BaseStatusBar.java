@@ -100,7 +100,7 @@ import com.android.systemui.SearchPanelView;
 import com.android.systemui.SystemUI;
 import com.android.systemui.cm.SpamMessageProvider;
 import com.android.systemui.slimrecent.RecentController;
-import com.android.systemui.statusbar.AppSidebar;
+import com.android.systemui.statusbar.halo;
 import com.android.systemui.statusbar.NotificationData.Entry;
 import com.android.systemui.statusbar.phone.KeyguardTouchDelegate;
 import com.android.systemui.statusbar.halo.Halo;
@@ -218,9 +218,6 @@ public abstract class BaseStatusBar extends SystemUI implements
     public boolean mHaloTaskerActive = false;
     protected ImageView mHaloButton;
     protected boolean mHaloButtonVisible = true;
-
-    // Notification helper
-    protected NotificationHelper mNotificationHelper;
 
     /**
      * An interface for navigation key bars to allow status bars to signal which keys are
@@ -584,12 +581,6 @@ public abstract class BaseStatusBar extends SystemUI implements
         }
     }
 
-    public PowerManager getPowerManagerInstance() {
-        if(mPowerManager == null) mPowerManager
-                = (PowerManager) mContext.getSystemService(Context.POWER_SERVICE);
-        return mPowerManager;
-    }
-
     private void initPieController() {
         if (mEdgeGestureManager == null) {
             mEdgeGestureManager = EdgeGestureManager.getInstance();
@@ -618,7 +609,7 @@ public abstract class BaseStatusBar extends SystemUI implements
             mEdgeGestureManager.setOverwriteImeIsActive(enabled);
         }
     }
-
+    
     public void userSwitched(int newUserId) {
         // should be overridden
     }
@@ -1341,9 +1332,6 @@ public abstract class BaseStatusBar extends SystemUI implements
             } else if (mPendingIntent != null) {
                 if (mFloat && allowed) mIntent.addFlags(flags);
                 mContext.startActivity(mIntent);
-            }
-
-                KeyguardTouchDelegate.getInstance(mContext).dismiss();
             }
 
             try {
