@@ -4605,6 +4605,14 @@ public final class Settings {
         public static final String RECENT_PANEL_FAVORITES = "recent_panel_favorites";
      
         /**
+         * Either if Active Display is enabled of disabled
+         * 0 = disabled (default)
+         * 1 = enabled
+         * @hide
+         */
+        public static final String AD_STATE = "ad_state";   
+     
+        /**
          * Whether to display notifications on screen when screen is off
          * @hide
          */
