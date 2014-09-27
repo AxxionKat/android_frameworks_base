@@ -100,7 +100,7 @@ import com.android.systemui.SearchPanelView;
 import com.android.systemui.SystemUI;
 import com.android.systemui.cm.SpamMessageProvider;
 import com.android.systemui.slimrecent.RecentController;
-import com.android.systemui.statusbar.halo;
+import com.android.systemui.statusbar.halo.Halo;
 import com.android.systemui.statusbar.notification.NotificationHelper;
 import com.android.systemui.statusbar.NotificationData.Entry;
 import com.android.systemui.statusbar.phone.KeyguardTouchDelegate;
@@ -1322,7 +1322,7 @@ public abstract class BaseStatusBar extends SystemUI implements
                 if (mIntent != null) {
                     launchFloating(mPendingIntent);
                 }
-
+            } else if (mIntent != null) {
                 int[] pos = new int[2];
                 v.getLocationOnScreen(pos);
                 Intent overlay = new Intent();
@@ -1335,9 +1335,7 @@ public abstract class BaseStatusBar extends SystemUI implements
                     // the stack trace isn't very helpful here.  Just log the exception message.
                     Log.w(TAG, "Sending contentIntent failed: " + e);
                 }
-            } else if (mPendingIntent != null) {
-                if (mFloat && allowed) mIntent.addFlags(flags);
-                mContext.startActivity(mIntent);
+                KeyguardTouchDelegate.getInstance(mContext).dismiss();
             }
 
             try {
@@ -1351,6 +1349,7 @@ public abstract class BaseStatusBar extends SystemUI implements
             visibilityChanged(false);
         }
     }
+    
     /**
      * The LEDs are turned o)ff when the notification panel is shown, even just a little bit.
      * This was added last-minute and is inconsistent with the way the rest of the notifications
