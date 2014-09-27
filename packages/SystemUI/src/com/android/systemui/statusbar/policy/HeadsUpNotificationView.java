@@ -81,6 +81,7 @@ public class HeadsUpNotificationView extends FrameLayout implements SwipeHelper.
         if (mSnoozeButton != null) {
             mSnoozeButton.setVisibility(show ? View.VISIBLE : View.GONE);
         }
+    }    
 
     public void setNotificationHelper(NotificationHelper notificationHelper) {
         mNotificationHelper = notificationHelper;
