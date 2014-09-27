@@ -33,7 +33,6 @@ import android.widget.TextView;
 import com.android.internal.telephony.MSimConstants;
 import com.android.systemui.statusbar.policy.NetworkController;
 import com.android.systemui.statusbar.policy.MSimNetworkController;
-import com.android.systemui.statusbar.phone.PhoneStatusBar;
 
 import com.android.systemui.R;
 
@@ -63,7 +62,6 @@ public class MSimSignalClusterView
     private int mAirplaneIconId = 0;
     private String mWifiDescription, mMobileTypeDescription;
     private String[] mMobileDescription;
-    private PhoneStatusBar mStatusBar;
 
     ViewGroup mWifiGroup;
     ViewGroup[] mMobileGroup;
@@ -123,10 +121,6 @@ public class MSimSignalClusterView
         mMSimNC = nc;
     }
 
-    public void setStatusBar(PhoneStatusBar mStatusBar) {
-	this.mStatusBar = mStatusBar;
-    }
-
     @Override
     protected void onAttachedToWindow() {
         super.onAttachedToWindow();
@@ -144,8 +138,8 @@ public class MSimSignalClusterView
             mMobileActivity[i] = (ImageView) findViewById(mMobileActResourceId[i]);
             mMobileType[i]     = (ImageView) findViewById(mMobileTypeResourceId[i]);
             mNoSimSlot[i]      = (ImageView) findViewById(mNoSimSlotResourceId[i]);
-        }      
-       applySubscription(MSimTelephonyManager.getDefault().getDefaultSubscription());    
+        }
+        applySubscription(MSimTelephonyManager.getDefault().getDefaultSubscription());
     }
 
     @Override
