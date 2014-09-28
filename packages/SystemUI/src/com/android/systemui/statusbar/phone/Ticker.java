@@ -192,6 +192,7 @@ public abstract class Ticker {
         mStatusBar = phoneStatusBar;
         mStatusBar.setColorToAllTextSwitcherChildren(mTextSwitcher);
         mStatusBar.setColorToAllImageSwitcherChildren(mIconSwitcher);
+        mStatusBar.updateNotificationIconColor();
     }
 
     public void addEntry(StatusBarNotification n) {
@@ -250,6 +251,7 @@ public abstract class Ticker {
         }
         mStatusBar.setColorToAllTextSwitcherChildren(mTextSwitcher);
         mStatusBar.setColorToAllImageSwitcherChildren(mIconSwitcher);
+        mStatusBar.updateNotificationIconColor();
     }
 
     private static boolean charSequencesEqual(CharSequence a, CharSequence b) {
