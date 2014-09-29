@@ -142,7 +142,6 @@ final class ActivityRecord {
 
     boolean topIntent;
     boolean newTask;
-    boolean newAppTask;
     boolean floatingWindow;
 
     int launchCount;        // count of launches since last state
@@ -393,9 +392,6 @@ final class ActivityRecord {
         // lacking in state to be removed if it dies.
         haveState = true;
 
-        topIntent = false;
-        floatingWindow = false;
-
         if (aInfo != null) {
             if (aInfo.targetActivity == null
                     || aInfo.launchMode == ActivityInfo.LAUNCH_MULTIPLE
@@ -456,6 +452,7 @@ final class ActivityRecord {
                     floatingWindow = true;
                 }
             }
+
             // If this is a multiwindow activity we prevent it from messing up the history stack,
             // like jumping back home, killing the current activity or polluting recents
             if (floatingWindow) {
@@ -470,6 +467,7 @@ final class ActivityRecord {
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
                     intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_WHEN_TASK_RESET);
                 }
+
                 // Change theme
                 realTheme = com.android.internal.R.style.Theme_DeviceDefault_FloatingWindow;
             }
@@ -486,8 +484,7 @@ final class ActivityRecord {
                 processName = aInfo.processName;
             }
 
-            if ((intent != null && (aInfo.flags & ActivityInfo.FLAG_EXCLUDE_FROM_RECENTS) != 0)
-                || floatingWindow) {
+            if (intent != null && (aInfo.flags & ActivityInfo.FLAG_EXCLUDE_FROM_RECENTS) != 0) {
                 intent.addFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);
             }
 
