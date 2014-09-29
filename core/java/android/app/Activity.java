@@ -5272,9 +5272,12 @@ public class Activity extends ContextThemeWrapper
             params.dimAmount = 0.5f;
             mWindow.setAttributes((WindowManager.LayoutParams) params);
 
+<<<<<<< HEAD
+=======
             // Scale it
             scaleFloatingWindow(context);
 
+>>>>>>> 0c4830f... Revert "Base: Floating window with multitasking"
             return true;
         } else {
             mWindow = PolicyManager.makeNewWindow(this);
