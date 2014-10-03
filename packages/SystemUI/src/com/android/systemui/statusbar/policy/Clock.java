@@ -88,7 +88,8 @@ public class Clock extends TextView implements DemoMode, OnClickListener, OnLong
     protected boolean mShowClock;
     private boolean mScreenOn = true;
     private int mAmPmStyle;
-    
+    private int mCurrentColor = -3;
+
     private SettingsObserver mSettingsObserver;
 
     protected class SettingsObserver extends ContentObserver {
@@ -337,7 +338,14 @@ public class Clock extends TextView implements DemoMode, OnClickListener, OnLong
         return formatted;
     }
 
-    protected void updateSettings() {
+    public void updateSettings(int defaultColor) {
+        if (mCurrentColor != defaultColor) {
+            mCurrentColor = defaultColor;
+            updateSettings();
+        }
+    }
+
+    public void updateSettings() {
         ContentResolver resolver = mContext.getContentResolver();
 
         mShowClock = Settings.System.getIntForUser(resolver,
@@ -381,7 +389,12 @@ public class Clock extends TextView implements DemoMode, OnClickListener, OnLong
                 Settings.System.STATUSBAR_CLOCK_DATE_STYLE, CLOCK_DATE_STYLE_UPPERCASE,
                 UserHandle.USER_CURRENT);
 
+        int clockColor = getResources().getColor(R.color.status_bar_clock_color);
+        int nowColor = mCurrentColor != -3 ? mCurrentColor : clockColor;
+        
         if (mAttached) {
+            getFontStyle(mClockFontStyle);
+            setTextColor(nowColor);
             updateClockVisibility();
             updateClock();
         }
