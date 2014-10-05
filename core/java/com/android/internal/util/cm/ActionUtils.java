@@ -99,6 +99,8 @@ public class ActionUtils {
                 com.android.internal.R.anim.last_app_out);
 
         if (DEBUG) Log.d(TAG, "switching to " + packageName);
+        sendCloseSystemWindows(context, null);
+        am.moveTaskToFront(lastTask.id, ActivityManager.MOVE_TASK_NO_USER_ACTION, opts.toBundle());
         if (lastTask.id > 0) {
             am.moveTaskToFront(lastTask.id, ActivityManager.MOVE_TASK_NO_USER_ACTION, opts.toBundle());
         } else if (lastAppIntent != null) {
@@ -110,7 +112,6 @@ public class ActionUtils {
                 Log.w("Recent", "Unable to launch recent task", e);
             }
         }
-
         return true;
     }
 
@@ -142,5 +143,14 @@ public class ActionUtils {
         final PackageManager pm = context.getPackageManager();
         final ResolveInfo launcherInfo = pm.resolveActivityAsUser(launcherIntent, 0, userId);
         return launcherInfo.activityInfo.packageName;
+    }
+
+    private static void sendCloseSystemWindows(Context context, String reason) {
+        if (ActivityManagerNative.isSystemReady()) {
+            try {
+                ActivityManagerNative.getDefault().closeSystemDialogs(reason);
+            } catch (RemoteException e) {
+            }
+        }
     }
 }
