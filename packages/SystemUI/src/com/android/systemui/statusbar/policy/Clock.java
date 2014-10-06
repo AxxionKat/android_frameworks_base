@@ -23,8 +23,10 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.database.ContentObserver;
 import android.graphics.Typeface;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.UserHandle;
@@ -42,8 +44,7 @@ import android.view.View.OnLongClickListener;
 import android.widget.TextView;
 
 import com.android.systemui.DemoMode;
-
-import com.android.internal.R;
+import com.android.systemui.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

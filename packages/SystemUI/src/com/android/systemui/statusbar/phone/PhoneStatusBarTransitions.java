@@ -46,6 +46,7 @@ public final class PhoneStatusBarTransitions extends BarTransitions {
     private ArrayList<ImageView> mIconsReverse = new ArrayList<ImageView>();
     private ArrayList<ImageView> mNotificationIcons = new ArrayList<ImageView>();
     private ArrayList<TextView> mNotificationTexts = new ArrayList<TextView>();
+    private ArrayList<TextView> mTexts = new ArrayList<TextView>();
 
     private Animator mCurrentAnimation;
     private int mCurrentColor = -3;
@@ -102,6 +103,12 @@ public final class PhoneStatusBarTransitions extends BarTransitions {
             mIcons.add(iv);
         }
     }
+    
+    public void addText(TextView tv) {
+        if (!mTexts.contains(tv)) {
+            mTexts.add(tv);
+        }
+    }    
 
     public void addIconReverse(ImageView iv) {
         if (!mIconsReverse.contains(iv)) {

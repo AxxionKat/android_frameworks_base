@@ -5197,6 +5197,15 @@ public class WindowManagerService extends IWindowManager.Stub
     }
 
     @Override
+    public void showCustomIntentOnKeyguard(Intent intent) {
+        if (mContext.checkCallingOrSelfPermission(android.Manifest.permission.DEVICE_POWER)
+                != PackageManager.PERMISSION_GRANTED) {
+            return;
+        }
+        mPolicy.showCustomIntentOnKeyguard(intent);
+    }
+    
+    @Override
     public void dismissKeyguard() {
         if (mContext.checkCallingOrSelfPermission(android.Manifest.permission.DISABLE_KEYGUARD)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -10396,6 +10405,11 @@ public class WindowManagerService extends IWindowManager.Stub
     }
 
     @Override
+    public void sendHomeAction() {
+        mPolicy.sendHomeAction();
+    }
+    
+    @Override
     public void lockNow(Bundle options) {
         mPolicy.lockNow(options);
     }
@@ -11252,15 +11266,6 @@ public class WindowManagerService extends IWindowManager.Stub
     @Override
     public void sendAppColorBroadcast(int duration) {
         mPolicy.sendAppColorBroadcast(duration);
-    }
-
-    private void moveTaskAndActivityToFront(int taskId) {
-        try {
-            moveTaskToTop(taskId);
-            mActivityManager.moveTaskToFront(taskId, 0, null);
-        } catch (RemoteException e) {
-            Log.e(TAG, "Cannot move the activity to front", e);
-        }
     }
     
     public void notifyFloatActivityTouched(IBinder token, boolean force) {
