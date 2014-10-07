@@ -1148,7 +1148,7 @@ public class Activity extends ContextThemeWrapper
      */
     protected void onStart() {
         if (DEBUG_LIFECYCLE) Slog.v(TAG, "onStart " + this);
-        setupColorActionBar(false);
+        setupFloatingActionBar(false);
         mCalled = true;
 
         if (!mLoadersStarted) {
@@ -2747,7 +2747,8 @@ public class Activity extends ContextThemeWrapper
         }
 
         return onTouchEvent(ev);
-
+    }
+    
     /**
      * @hide
      */
