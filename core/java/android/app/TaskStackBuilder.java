@@ -84,16 +84,6 @@ public class TaskStackBuilder {
     }
 
     /**
-     * Hide from the public api
-     *
-     * @hide
-     * @param firstTaskOnHome
-     */
-    public void setTaskOnHome(boolean firstTaskOnHome) {
-        mFirstTaskOnHome = firstTaskOnHome;
-    }
-
-    /**
      * Add a new Intent to the task stack. The most recently added Intent will invoke
      * the Activity at the top of the final task stack.
      *
