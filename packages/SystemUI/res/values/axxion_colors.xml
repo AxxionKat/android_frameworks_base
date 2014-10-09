@@ -16,6 +16,9 @@
 -->
 <resources>
     
+    <!-- Active Display -->
+    <color name="ad_notification_background_color">#3fff</color>
+    
     <!-- Quick Settings -->
     <color name="qs_background_color">#FF212121</color>
     <color name="qs_background_pressed_color">#FF161616</color>
