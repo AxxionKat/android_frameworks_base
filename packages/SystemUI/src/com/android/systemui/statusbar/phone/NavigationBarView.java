@@ -58,6 +58,9 @@ import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.android.internal.util.cm.LockscreenTargetUtils;
+import com.android.internal.util.cm.NavigationRingConstants;
+import com.android.internal.util.cm.NavigationRingHelpers;
 import com.android.internal.widget.LockPatternUtils;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.BaseStatusBar;
@@ -86,6 +89,7 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
     private OnClickListener mRecentsClickListener;
     private OnLongClickListener mRecentsLongClickListener;
     private OnTouchListener mRecentsPreloadListener;
+    private OnLongClickListener mRecentsLongClickListener;
     private OnTouchListener mHomeSearchActionListener;
 
     final Display mDisplay;
@@ -340,9 +344,11 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
     }
 
     /* package */ void setListeners(OnClickListener recentsClickListener,
-            OnTouchListener recentsPreloadListener, OnTouchListener homeSearchActionListener) {
+            OnTouchListener recentsPreloadListener, OnLongClickListener recentsLongClickListener,
+            OnTouchListener homeSearchActionListener) {
         mRecentsClickListener = recentsClickListener;
         mRecentsPreloadListener = recentsPreloadListener;
+        mRecentsLongClickListener = recentsLongClickListener;
         mHomeSearchActionListener = homeSearchActionListener;
         updateButtonListeners();
     }
@@ -355,6 +361,7 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
             if (button instanceof KeyButtonView) {
                 button.setOnClickListener(null);
                 button.setOnTouchListener(null);
+                button.setOnLongClickListener(null);
             }
         }
     }
@@ -365,6 +372,7 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
             recentView.setOnClickListener(mRecentsClickListener);
             recentView.setOnLongClickListener(mRecentsLongClickListener);
             recentView.setOnTouchListener(mRecentsPreloadListener);
+            recentView.setOnLongClickListener(mRecentsLongClickListener);
         }
         View homeView = findButton(NavbarEditor.NAVBAR_HOME);
         if (homeView != null) {
@@ -374,8 +382,16 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
 
     private void setButtonVisibility(NavbarEditor.ButtonInfo info, boolean visible) {
         View findView = findButton(info);
-        if (findView != null) {
-            findView.setVisibility(visible ? View.VISIBLE : View.INVISIBLE);
+        if (findView == null) {
+            return;
+        }
+        int visibility = visible ? View.VISIBLE : View.INVISIBLE;
+        if (mSlotOneVisibility != -1 && findView.getId() == R.id.one) {
+            mSlotOneVisibility = visibility;
+        } else if (mSlotSixVisibility != -1 && findView.getId() == R.id.six) {
+            mSlotSixVisibility = visibility;
+        } else {
+            findView.setVisibility(visibility);
         }
     }
 
@@ -555,9 +571,11 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
             } else {
                 if (mSlotOneVisibility != -1) {
                     one.setVisibility(mSlotOneVisibility);
+                    mSlotOneVisibility = -1;
                 }
                 if (mSlotSixVisibility != -1) {
                     six.setVisibility(mSlotSixVisibility);
+                    mSlotSixVisibility = -1;
                 }
             }
         }
@@ -616,7 +634,8 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
                 Settings.System.LOCKSCREEN_NOTIFICATIONS, 1) == 1
             && Settings.System.getInt(mContext.getContentResolver(),
                     Settings.System.LOCKSCREEN_NOTIFICATIONS_PRIVACY_MODE, 0) == 0;
-        setVisibleOrGone(getSearchLight(), showSearch && mModLockDisabled);
+        setVisibleOrGone(getSearchLight(), showSearch && mModLockDisabled
+                && NavigationRingHelpers.hasLockscreenTargets(mContext));
         setVisibleOrGone(getCameraButton(), showCamera);
         setVisibleOrGone(getNotifsButton(), showNotifs);
 
@@ -757,6 +776,7 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
 
     public void setLeftInLandscape(boolean leftInLandscape) {
         mLeftInLandscape = leftInLandscape;
+        mBarTransitions.setLeftIfVertical(leftInLandscape);
         mDeadZone.setStartFromRight(leftInLandscape);
     }
 
@@ -999,15 +1019,15 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
             // restore previous views in case the cursor keys WERE showing and
             // are should now be hidden while the IME is up.
             View one = getCurrentView().findViewById(mVertical ? R.id.six : R.id.one);
-            View capricaSix = getCurrentView().findViewById(mVertical ? R.id.one : R.id.six);
+            View six = getCurrentView().findViewById(mVertical ? R.id.one : R.id.six);
             if (mSlotOneVisibility != -1 && one != null) {
                 one.setVisibility(mSlotOneVisibility);
+                mSlotOneVisibility = -1;
             }
-            if (mSlotSixVisibility != -1 && capricaSix != null) {
-                capricaSix.setVisibility(mSlotSixVisibility);
+            if (mSlotSixVisibility != -1 && six != null) {
+                six.setVisibility(mSlotSixVisibility);
+                mSlotSixVisibility = -1;
             }
-            mSlotOneVisibility = -1;
-            mSlotSixVisibility = -1;
 
             // propogate settings
             setNavigationIconHints(mNavigationIconHints, true);

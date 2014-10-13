@@ -109,6 +109,7 @@ import android.widget.ViewFlipper;
 
 
 import com.android.internal.statusbar.StatusBarIcon;
+import com.android.internal.util.cm.ActionUtils;
 import com.android.systemui.BatteryMeterView.BatteryMeterMode;
 import com.android.systemui.DemoMode;
 import com.android.systemui.DockBatteryMeterView;
@@ -142,6 +143,7 @@ import java.io.FileDescriptor;
 import java.io.PrintWriter;
 import java.lang.StringBuilder;
 import java.util.ArrayList;
+import java.util.List;
 
 public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         NetworkController.UpdateUIListener {
@@ -946,12 +948,12 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     }
 
     private void cleanupRibbon() {
-        if (mRibbonView == null) {
-            return;
+        if (mRibbonView != null)
+            mRibbonView.setVisibility(View.GONE);
+        if (mRibbonQS != null) {
+            mRibbonQS.shutdown();
+            mRibbonQS = null;
         }
-        mRibbonView.setVisibility(View.GONE);
-        mRibbonQS.shutdown();
-        mRibbonQS = null;
     }
 
     private void inflateRibbon() {
@@ -1558,6 +1560,14 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
     };
 
+    private View.OnLongClickListener mRecentsLongPressListener = new View.OnLongClickListener() {
+        @Override
+        public boolean onLongClick(View v) {
+            cancelPreloadingRecentTasksList();
+            return ActionUtils.switchToLastApp(mContext, mCurrentUserId);
+        }
+    };
+
     private int mShowSearchHoldoff = 0;
     private Runnable mShowSearchPanel = new Runnable() {
         public void run() {
@@ -1599,7 +1609,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     private void prepareNavigationBarView() {
         mNavigationBarView.reorient();
         mNavigationBarView.setListeners(mRecentsClickListener,
-                mRecentsPreloadOnTouchListener, mHomeSearchActionListener);
+                mRecentsPreloadOnTouchListener, mRecentsLongPressListener,
+                mHomeSearchActionListener);
         updateSearchPanel();
     }
 
@@ -3149,7 +3160,13 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         if (mNavigationBarView != null) {
             mNavigationBarView.getBarTransitions().transitionTo(mNavigationBarMode,
                     shouldAnimateBarTransition(mNavigationBarMode, mNavigationBarWindowState));
-            int sbbMode = mStatusBarWindowState == WINDOW_STATE_HIDDEN ? MODE_TRANSPARENT : sbMode;
+            // The status bar blocker is only needed if both
+            // - the status bar is visible and
+            // - the navigation bar is translucent (as otherwise there is no
+            //   visual 'gap' which needs to be filled)
+            boolean sbbNeeded = mStatusBarWindowState != WINDOW_STATE_HIDDEN
+                    && mNavigationBarMode == MODE_TRANSLUCENT;
+            int sbbMode = sbbNeeded ? sbMode : MODE_TRANSPARENT;
             mNavigationBarView.getStatusBarBlockerTransitions().transitionTo(sbbMode, animateSb);
         }
     }
@@ -4050,6 +4067,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         // Update the QuickSettings container
         if (mQS != null) mQS.updateResources();
+        if (mRibbonQS != null)
+            mRibbonQS.updateResources();
         if (mNavigationBarView != null)  {
             mNavigationBarView.updateResources(getNavbarThemedResources());
             updateSearchPanel();
@@ -4327,6 +4346,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     cleanupRibbon();
                 }
             } else if (uri != null && uri.equals(Settings.System.getUriFor(
+                    Settings.System.QS_QUICK_ACCESS_SIZE))) {
+                if (mRibbonQS != null)
+                    mRibbonQS.updateResources();
+            } else if (uri != null && uri.equals(Settings.System.getUriFor(
                     Settings.System.QS_QUICK_ACCESS_LINKED))) {
                 final ContentResolver resolver = mContext.getContentResolver();
                 boolean layoutLinked = Settings.System.getIntForUser(resolver,
@@ -4393,6 +4416,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
             cr.registerContentObserver(
                     Settings.System.getUriFor(Settings.System.QS_QUICK_ACCESS),
+                    false, this, UserHandle.USER_ALL);
+
+            cr.registerContentObserver(
+                    Settings.System.getUriFor(Settings.System.QS_QUICK_ACCESS_SIZE),
                     false, this, UserHandle.USER_ALL);
 
             cr.registerContentObserver(

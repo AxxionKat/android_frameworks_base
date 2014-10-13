@@ -46,6 +46,7 @@ public class TorchService extends ITorchService.Stub {
     private BroadcastReceiver mStopTorchDoneReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
+            if (DEBUG) Log.d(TAG, "Torch shutdown broadcast completed");
             synchronized (mStopTorchLock) {
                 mStopTorchLock.notify();
             }
@@ -77,28 +78,38 @@ public class TorchService extends ITorchService.Stub {
                 }
             }
         }
+
+        // Shutdown torch outside of lock - torch shutdown will call into onCameraClosed()
+        if (needTorchShutdown) {
+            shutdownTorch();
+        }
+
         try {
             token.linkToDeath(new IBinder.DeathRecipient() {
                 @Override
                 public void binderDied() {
-                    CameraUserRecord record = mCamerasInUse.get(cameraId);
-                    if (record != null && record.token == token) {
+                    synchronized (mCamerasInUse) {
                         if (DEBUG) Log.d(TAG, "Camera " + cameraId + " client died");
-                        mCamerasInUse.delete(cameraId);
+                        removeCameraUserLocked(token, cameraId);
                     }
                 }
             }, 0);
-            mCamerasInUse.put(cameraId, new CameraUserRecord(token));
+            synchronized (mCamerasInUse) {
+                mCamerasInUse.put(cameraId, new CameraUserRecord(token));
+            }
         } catch (RemoteException e) {
             // ignore, already dead
         }
     }
 
     @Override
-    public void onCameraClosed(int cameraId) {
-        mCamerasInUse.delete(cameraId);
-        if (cameraId == mTorchAppCameraId) {
-            mTorchAppCameraId = -1;
+    public void onCameraClosed(final IBinder token, int cameraId) {
+        if (DEBUG) Log.d(TAG, "onCameraClosed(token=" + token + ", cameraId=" + cameraId + ")");
+        synchronized (mCamerasInUse) {
+            removeCameraUserLocked(token, cameraId);
+            if (cameraId == mTorchAppCameraId && Binder.getCallingUid() == mTorchAppUid) {
+                mTorchAppCameraId = -1;
+            }
         }
     }
 
@@ -154,7 +165,6 @@ public class TorchService extends ITorchService.Stub {
             if (DEBUG) Log.d(TAG, "Removing camera user " + token);
             mCamerasInUse.delete(cameraId);
         }
-        return mCamerasInUse.get(cameraId) == null;
     }
 
     private void shutdownTorch() {
@@ -171,7 +181,7 @@ public class TorchService extends ITorchService.Stub {
         i.addFlags(Intent.FLAG_FROM_BACKGROUND | Intent.FLAG_RECEIVER_FOREGROUND);
 
         synchronized (mStopTorchLock) {
-            if (DEBUG) Log.v(TAG, "sending torch shutdown broadcast");
+            if (DEBUG) Log.v(TAG, "Sending torch shutdown broadcast");
             mContext.sendOrderedBroadcastAsUser(i, UserHandle.CURRENT_OR_SELF, null,
                     mStopTorchDoneReceiver, handler, Activity.RESULT_OK, null, null);
 
@@ -182,7 +192,7 @@ public class TorchService extends ITorchService.Stub {
             }
         }
         stopTorchThread.quit();
-        if (DEBUG) Log.v(TAG, "torch shutdown completed");
+        if (DEBUG) Log.v(TAG, "Torch shutdown completed");
     }
 
     @Override

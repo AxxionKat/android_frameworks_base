@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2013 The Linux Foundation. All rights reserved.
+ * Copyright (c) 2013, 2014 The Linux Foundation. All rights reserved.
  * Not a Contribution.
  * Copyright (C) 2006 The Android Open Source Project
  *
@@ -722,7 +722,7 @@ public final class Settings {
      */
     @SdkConstant(SdkConstantType.ACTIVITY_INTENT_ACTION)
     public static final String ACTION_NOTIFICATION_LISTENER_SETTINGS
-            = "android.settings.NOTIFICATION_LISTENER_SETTINGS";
+            = "android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS";
 
     /**
      * Activity Action: Show settings for video captioning.
@@ -2104,10 +2104,19 @@ public final class Settings {
         public static final String VOLUME_BLUETOOTH_SCO = "volume_bluetooth_sco";
 
         /**
-         * Whether to prevent loud volume levels when headset is first plugged in.
+         * Whether to display a warning dialog when the user attempts to increase media
+         * volume above a safe limit while a headset is connected. This feature is enabled
+         * by default to comply with safety regulations and the user must agree to a waiver
+         * if they wish to disable it.
          * @hide
          */
         public static final String SAFE_HEADSET_VOLUME = "safe_headset_volume";
+
+        /**
+         * Whether to reduce media volume to a safe limit each time a headset is plugged in.
+         * @hide
+         */
+        public static final String SAFE_HEADSET_VOLUME_RESTORE = "safe_headset_volume_restore";
 
         /**
          * Master volume (float in the range 0.0f to 1.0f).
@@ -2248,6 +2257,30 @@ public final class Settings {
         public static final String RINGTONE = "ringtone";
 
         /**
+         * Persistent store for the SIM-2 ringtone URI.
+         * <p>
+         * If you need to play SIM-2 ringtone at any given time, it is recommended
+         * you give {@link #DEFAULT_RINGTONE_URI_2} to the media player.  It will resolve
+         * to the set default ringtone at the time of playing.
+         *
+         * @see #DEFAULT_RINGTONE_URI_2
+         * @hide
+         */
+        public static final String RINGTONE_2 = "ringtone_2";
+
+        /**
+         * Persistent store for the SIM-3 ringtone URI.
+         * <p>
+         * If you need to play SIM-3 ringtone at any given time, it is recommended
+         * you give {@link #DEFAULT_RINGTONE_URI_3} to the media player.  It will resolve
+         * to the set default ringtone at the time of playing.
+         *
+         * @see #DEFAULT_RINGTONE_URI_3
+         * @hide
+         */
+        public static final String RINGTONE_3 = "ringtone_3";
+
+        /**
          * A {@link Uri} that will point to the current default ringtone at any
          * given time.
          * <p>
@@ -2256,6 +2289,39 @@ public final class Settings {
          * FileNotFoundException.
          */
         public static final Uri DEFAULT_RINGTONE_URI = getUriFor(RINGTONE);
+
+        /**
+         * A {@link Uri} that will point to the current SIM-2 ringtone at any
+         * given time.
+         * <p>
+         * If the current default ringtone is in the DRM provider and the caller
+         * does not have permission, the exception will be a
+         * FileNotFoundException.
+         *
+         * @hide
+         */
+        public static final Uri DEFAULT_RINGTONE_URI_2 = getUriFor(RINGTONE_2);
+
+        /**
+         * A {@link Uri} that will point to the current SIM-3 ringtone at any
+         * given time.
+         * <p>
+         * If the current default ringtone is in the DRM provider and the caller
+         * does not have permission, the exception will be a
+         * FileNotFoundException.
+         *
+         * @hide
+         */
+        public static final Uri DEFAULT_RINGTONE_URI_3 = getUriFor(RINGTONE_3);
+
+        /**
+         * Maximum number of ringtones supported.
+         * <p>
+         * Maximum number of ringtones supported by settings. Increment this
+         * if a new URI needs to be added for ringtone.
+         * @hide
+         */
+        public static final int MAX_NUM_RINGTONES = 3;
 
         /**
          * Persistent store for the system-wide default notification sound.
@@ -3151,6 +3217,13 @@ public final class Settings {
         public static final String QS_QUICK_ACCESS = "qs_quick_access";
 
         /**
+         * Quick Settings Quick access ribbon - size
+         *
+         * @hide
+         */
+        public static final String QS_QUICK_ACCESS_SIZE = "qs_quick_access_size";
+
+        /**
          * Quick Settings Quick access ribbon - linked layout
          *
          * @hide
@@ -3392,10 +3465,16 @@ public final class Settings {
         public static final String EXPANDED_SCREENTIMEOUT_MODE = "expanded_screentimeout_mode";
 
         /**
-        * Notification Power Widget - Custom Ring Mode
-        * @hide
-        */
+         * Notification Power Widget - Custom Ring Mode
+         * @hide
+         */
         public static final String EXPANDED_RING_MODE = "expanded_ring_mode";
+
+        /**
+         * Notification Power Widget - Custom Location Mode
+         * @hide
+         */
+        public static final String EXPANDED_LOCATION_MODE = "expanded_location_mode";
 
         /**
         * Notification Power Widget - Custom Torch Mode
@@ -3580,6 +3659,12 @@ public final class Settings {
          * @hide
          */
         public static final String CALL_UI_IN_BACKGROUND = "call_ui_in_background";
+        
+		/**
+         * Whether to scramble a pin unlock layout
+         * @hide
+         */
+        public static final String LOCKSCREEN_PIN_SCRAMBLE_LAYOUT = "lockscreen_scramble_pin_layout";
 
         /**
          * Whether to use the custom quick unlock screen control
@@ -3629,7 +3714,6 @@ public final class Settings {
 	     */
         public static final String ON_THE_GO_SERVICE_RESTART = "on_the_go_service_restart";
 
->>>>>>> 3d9fe0a... Final fixes
         /**
          * Whether to unlock the menu key.  The value is boolean (1 or 0).
          * @hide
@@ -4027,6 +4111,7 @@ public final class Settings {
          * 4 - Voice search
          * 5 - In-app search
          * 6 - Launch Camera
+         * 7 - Last app
          * @hide
          */
         public static final String KEY_HOME_LONG_PRESS_ACTION = "key_home_long_press_action";
@@ -4498,6 +4583,25 @@ public final class Settings {
         public static final String RECENT_PANEL_BG_COLOR = "recent_panel_bg_color";
 
         /**
+         * Whether wifi settings will connect to access point automatically
+         * 0 = automatically
+         * 1 = manually
+         * @hide
+         */
+        public static final String WIFI_AUTO_CONNECT_TYPE = "wifi_auto_connect_type";
+
+        /**
+         * Whether wifi settings will connect to access point automatically when
+         * network from mobile network transform to Wifi network
+         * 0 = automatically
+         * 1 = manually
+         * 2 = always ask
+         *
+         * @hide
+         */
+        public static final String DATA_TO_WIFI_CONNECT_TYPE = "data_to_wifi_connect_type";
+
+         /**
          * Settings to backup. This is here so that it's in the same place as the settings
          * keys and easy to update.
          *
@@ -4945,6 +5049,7 @@ public final class Settings {
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_P2P_DEVICE_NAME);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_SAVED_STATE);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_SUPPLICANT_SCAN_INTERVAL_MS);
+            MOVED_TO_GLOBAL.add(Settings.Global.WIFI_SUPPLICANT_SCAN_INTERVAL_WFD_CONNECTED_MS);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_SUSPEND_OPTIMIZATIONS_ENABLED);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_WATCHDOG_ON);
             MOVED_TO_GLOBAL.add(Settings.Global.WIFI_WATCHDOG_POOR_NETWORK_TEST_ENABLED);
@@ -7659,6 +7764,13 @@ public final class Settings {
         */
        public static final String WIFI_SCAN_INTERVAL_WHEN_P2P_CONNECTED_MS =
                "wifi_scan_interval_p2p_connected_ms";
+
+       /**
+        * The intervel in milliseconds to scan at supplicant when wfd session
+        * @hide
+        */
+       public static final String WIFI_SUPPLICANT_SCAN_INTERVAL_WFD_CONNECTED_MS =
+                 "wifi_scan_intervel_wfd_connected_ms";
 
        /**
         * Whether the Wi-Fi watchdog is enabled.
