@@ -3960,14 +3960,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     }
 
     private void onBatteryColorChange(int color) {
-        if (mBattery != null) {
-            mBattery.updateSettings(color);
-        }
-        if (mCircleBattery != null) {
-            mCircleBattery.updateSettings(color);
-        }
-        if (mPercentBattery != null) {
-            mPercentBattery.updateSettings(color);
+        if (mBatteryView != null) {
+            mBatteryView.updateSettings(color);
         }
     }
 
