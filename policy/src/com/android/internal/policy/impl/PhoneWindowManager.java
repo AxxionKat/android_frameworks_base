@@ -119,6 +119,7 @@ import com.android.internal.telephony.ITelephony;
 import com.android.internal.util.gesture.EdgeGesturePosition;
 import com.android.internal.util.gesture.EdgeServiceConstants;
 import com.android.internal.util.slim.Converter;
+import com.android.internal.util.slim.SlimActions;
 import com.android.internal.widget.PointerLocationView;
 
 import java.io.File;
@@ -188,6 +189,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private static final int KEY_ACTION_LAUNCH_CAMERA = 6;
     private static final int KEY_ACTION_LAST_APP = 7;
     private static final int KEY_ACTION_SLEEP = 8;
+    private static final int KEY_ACTION_SLIM_ACTIONS= 9;
 
     // Masks for checking presence of hardware keys.
     // Must match values in core/res/res/values/config.xml
@@ -1200,6 +1202,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             case KEY_ACTION_SLEEP:
                 mPowerManager.goToSleep(SystemClock.uptimeMillis());
                 break;
+            case KEY_ACTION_SLIM_ACTIONS:
+                SlimActions.processAction(mContext, type, true);                
+                break;                
             default:
                 break;
         }
@@ -1498,14 +1503,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mLongPressOnHomeBehavior = mContext.getResources().getInteger(
                 com.android.internal.R.integer.config_longPressOnHomeBehavior);
         if (mLongPressOnHomeBehavior < KEY_ACTION_NOTHING ||
-                mLongPressOnHomeBehavior > KEY_ACTION_SLEEP) {
+                mLongPressOnHomeBehavior > KEY_ACTION_SLIM_ACTIONS) {
             mLongPressOnHomeBehavior = KEY_ACTION_NOTHING;
         }
 
         mDoubleTapOnHomeBehavior = mContext.getResources().getInteger(
                 com.android.internal.R.integer.config_doubleTapOnHomeBehavior);
         if (mDoubleTapOnHomeBehavior < KEY_ACTION_NOTHING ||
-                mDoubleTapOnHomeBehavior > KEY_ACTION_SLEEP) {
+                mDoubleTapOnHomeBehavior > KEY_ACTION_SLIM_ACTIONS) {
             mDoubleTapOnHomeBehavior = KEY_ACTION_NOTHING;
         }
 
