@@ -102,6 +102,14 @@ public class BatteryMeterView extends View implements DemoMode {
 
     private boolean mCustomColor;
     private int systemColor;
+   
+    public static enum BatteryMeterMode {
+        BATTERY_METER_GONE,
+        BATTERY_METER_ICON_PORTRAIT,
+        BATTERY_METER_ICON_LANDSCAPE,
+        BATTERY_METER_CIRCLE,
+        BATTERY_METER_TEXT
+    }
 
     private class BatteryTracker extends BroadcastReceiver {
         public static final int UNKNOWN_LEVEL = -1;

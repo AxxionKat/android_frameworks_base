@@ -120,6 +120,7 @@ import com.android.internal.util.gesture.EdgeGesturePosition;
 import com.android.internal.util.gesture.EdgeServiceConstants;
 import com.android.internal.util.slim.Converter;
 import com.android.internal.util.slim.SlimActions;
+import com.android.internal.util.slim.ButtonsConstants;
 import com.android.internal.widget.PointerLocationView;
 
 import java.io.File;
@@ -1203,7 +1204,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 mPowerManager.goToSleep(SystemClock.uptimeMillis());
                 break;
             case KEY_ACTION_SLIM_ACTIONS:
-                SlimActions.processAction(mContext, type, true);                
+                SlimActions.processAction(mContext, ButtonsConstants.ACTION_NOTIFICATIONS, false);               
                 break;                
             default:
                 break;

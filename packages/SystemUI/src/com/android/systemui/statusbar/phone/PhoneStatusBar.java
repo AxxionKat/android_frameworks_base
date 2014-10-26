@@ -664,12 +664,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
             mReminderEnabled = reminderHolder;
             updateReminder();
-
-    private void updateBatteryIcons() {
-        if (mBattery != null && mCircleBattery != null) {
-            mBattery.updateSettings(false);
-            mCircleBattery.updateSettings(false);
-        }
+         }
     }
 
     // Pie controls
@@ -875,8 +870,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
     private void updateBatteryIcons() {
         if (mBattery != null && mCircleBattery != null) {
-            mBattery.updateSettings();
-            mCircleBattery.updateSettings();
+            mBattery.updateSettings(false);
+            mCircleBattery.updateSettings(false);
         }
     }
 
@@ -949,7 +944,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         mLocationController = new LocationController(mContext);
         mBatteryController = new BatteryController(mContext);
-        mDockBatteryController = new DockBatteryController(mContext);
         mBluetoothController = new BluetoothController(mContext);
 
         super.start(); // calls createAndAddWindows()
@@ -1268,7 +1262,6 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mBatteryController = new BatteryController(mContext);
         mNetworkController = new NetworkController(mContext);
         mBluetoothController = new BluetoothController(mContext);
-        mRotationLockController = new RotationLockController(mContext);
 
         mSignalClusterView = (SignalClusterView) mStatusBarView.findViewById(R.id.signal_cluster);
         mSignalTextView = (SignalClusterTextView)
@@ -3935,8 +3928,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     }
 
     private void onBatteryColorChange(int color) {
-        if (mBatteryView != null) {
-            mBatteryView.updateSettings(color);
+        if (mBattery != null) {
+            mBattery.updateSettings(color);
         }
     }
     

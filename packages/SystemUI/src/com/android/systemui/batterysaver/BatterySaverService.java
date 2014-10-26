@@ -524,7 +524,7 @@ public class BatterySaverService extends Service implements BluetoothConnectionC
     public void onBatteryMeterShowPercent(boolean showPercent) {/*Ignore*/}
 
     @Override
-    public void onBatteryLevelChanged(boolean present, int level, boolean pluggedIn, int status) {
+    public void onBatteryLevelChanged(int level, boolean pluggedIn) {
         if (!mBatterySaverEnabled) return;
         if (mSmartBatteryEnabled) {
             if (!pluggedIn && (level < mLowBatteryLevel)) {

@@ -19,6 +19,7 @@
 package com.android.systemui.statusbar;
 
 import android.content.Context;
+import android.content.ContentResolver;
 import android.database.ContentObserver;
 import android.graphics.drawable.Drawable;
 import android.graphics.PorterDuff.Mode;

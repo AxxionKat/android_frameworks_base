@@ -22,6 +22,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.BatteryManager;
 
+import com.android.systemui.BatteryMeterView.BatteryMeterMode;
+
 import java.util.ArrayList;
 
 public class BatteryController extends BroadcastReceiver {
@@ -35,6 +37,8 @@ public class BatteryController extends BroadcastReceiver {
 
     public interface BatteryStateChangeCallback {
         public void onBatteryLevelChanged(int level, boolean pluggedIn);
+        public void onBatteryMeterModeChanged(BatteryMeterMode mode);    
+        public void onBatteryMeterShowPercent(boolean showPercent);    
     }
 
     public BatteryController(Context context) {
@@ -58,7 +62,7 @@ public class BatteryController extends BroadcastReceiver {
     public boolean isBatteryStatusCharging() {
         return mPluggedIn;
     }
-        
+
     // For HALO
     private ArrayList<BatteryStateChangeCallbackHalo> mChangeCallbacksHalo =
             new ArrayList<BatteryStateChangeCallbackHalo>();
@@ -78,11 +82,10 @@ public class BatteryController extends BroadcastReceiver {
         mChangeCallbacksHalo.remove(cb_Halo);
     }  
 
-    public void unregisterController(Context context) {	
+    public void unregisterController(Context context) {
         context.unregisterReceiver(this);
-
-    }
-
+    } 
+    
     public void onReceive(Context context, Intent intent) {
         final String action = intent.getAction();
         if (action.equals(Intent.ACTION_BATTERY_CHANGED)) {
@@ -97,16 +100,27 @@ public class BatteryController extends BroadcastReceiver {
                     mPluggedIn = true;
                     break;
             }
-	    // For HALO
-            for (BatteryStateChangeCallbackHalo cb_Halo : mChangeCallbacksHalo) {
-                cb_Halo.onBatteryLevelChangedHalo(mBatteryLevel, mBatteryPlugged);
-            }
-        }
-    }
 
             for (BatteryStateChangeCallback cb : mChangeCallbacks) {
                 cb.onBatteryLevelChanged(mLevel, mPluggedIn);
             }
-        }
+
+	    // For HALO
+            for (BatteryStateChangeCallbackHalo cb_Halo : mChangeCallbacksHalo) {
+                cb_Halo.onBatteryLevelChangedHalo(mLevel, mPluggedIn);
+            }            
+        }        
     }
+     
+     public void onBatteryMeterModeChanged(BatteryMeterMode mode) {
+         for (BatteryStateChangeCallback cb : mChangeCallbacks) {
+             cb.onBatteryMeterModeChanged(mode);
+         }
+     }
+ 
+     public void onBatteryMeterShowPercent(boolean showPercent) {
+         for (BatteryStateChangeCallback cb : mChangeCallbacks) {
+             cb.onBatteryMeterShowPercent(showPercent);
+          }
+     }    
 }
