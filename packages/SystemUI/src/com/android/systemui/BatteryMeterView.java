@@ -47,6 +47,8 @@ import com.android.internal.util.liquid.DevUtils;
 
 import com.android.systemui.R;
 
+import com.android.internal.util.omni.ColorUtils;
+
 public class BatteryMeterView extends View implements DemoMode {
     public static final String TAG = BatteryMeterView.class.getSimpleName();
     public static final String ACTION_LEVEL_TEST = "com.android.systemui.BATTERY_LEVEL_TEST";
@@ -81,6 +83,8 @@ public class BatteryMeterView extends View implements DemoMode {
     Paint mFramePaint, mBatteryPaint, mWarningTextPaint, mTextPaint, mBoltPaint;
     int mButtonHeight;
     private float mTextHeight, mWarningTextHeight;
+    private int mChangeColor = -3;
+    private int mBoltColor = -3;
 
     private int mHeight;
     private int mWidth;
@@ -93,6 +97,7 @@ public class BatteryMeterView extends View implements DemoMode {
     private final RectF mClipFrame = new RectF();
     private final Rect mBoltFrame = new Rect();
 
+    private final int mChargeColor;
     private int mBatteryStyle;
     private int mBatteryColor;
     private int mPercentageColor;
@@ -263,8 +268,12 @@ public class BatteryMeterView extends View implements DemoMode {
         mWarningTextPaint.setTypeface(font);
         mWarningTextPaint.setTextAlign(Paint.Align.CENTER);
 
+        mChargeColor = getResources().getColor(R.color.batterymeter_charge_color);
+
         mBoltPaint = new Paint();
         mBoltPaint.setAntiAlias(true);
+        mBoltColor = res.getColor(R.color.batterymeter_bolt_color);
+        mBoltPaint.setColor(mBoltColor);        
         mBoltPoints = loadBoltPoints(res);
         setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
@@ -299,9 +308,23 @@ public class BatteryMeterView extends View implements DemoMode {
         for (int i=0; i<mColors.length; i+=2) {
             thresh = mColors[i];
             color = mColors[i+1];
-            if (percent <= thresh) return color;
+            if (percent <= thresh) {
+               if (mChangeColor != -3) {
+                    return mChangeColor;
+                } else {
+                    return color;
+                }
+            }
+        }
+        if (mChangeColor != -3) {
+            return mChangeColor;
         }
         return color;
+    }
+
+    public void updateSettings(int color) {
+        mChangeColor = color;
+        postInvalidate();
     }
 
     @Override
@@ -350,6 +373,19 @@ public class BatteryMeterView extends View implements DemoMode {
             c.drawRect(mFrame, mFramePaint);
         }
 
+        // fill 'er up
+        int color = 0;
+        if (tracker.plugged) {
+            if (mChangeColor != -3) {
+                color = mChangeColor;
+            } else {
+                color = mChargeColor;
+            }
+        } else {
+            color = getColorForLevel(level);
+        }        
+             mBatteryPaint.setColor(color);
+             
         if (level >= FULL) {
             drawFrac = 1f;
         } else if (level <= EMPTY) {
@@ -371,6 +407,16 @@ public class BatteryMeterView extends View implements DemoMode {
 
         if (tracker.plugged && !mPercentageOnly) {
             // draw the bolt
+            if (mChangeColor != -3) {
+                int colorSt = Color.WHITE;
+                if (ColorUtils.isBrightColor(mChangeColor)) {
+                    colorSt = Color.BLACK;
+                }
+                mBoltPaint.setColor(colorSt);
+            } else {
+                mBoltPaint.setColor(mBoltColor);
+            }        
+        
             final int bl = (int)(mFrame.left + mFrame.width() / 4.5f);
             final int bt = (int)(mFrame.top + mFrame.height() / 6f);
             final int br = (int)(mFrame.right - mFrame.width() / 7f);
@@ -420,6 +466,12 @@ public class BatteryMeterView extends View implements DemoMode {
                 }
             }
             mTextHeight = -mTextPaint.getFontMetrics().ascent;
+
+            int textColor = 0xFFFFFFFF;
+            if (mChangeColor != -3) {
+                textColor = mChangeColor;
+            }
+            mTextPaint.setColor(textColor);
 
             String str;
             if (mPercentageOnly) {

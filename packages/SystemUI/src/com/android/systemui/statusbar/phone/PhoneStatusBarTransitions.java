@@ -40,7 +40,7 @@ public final class PhoneStatusBarTransitions extends BarTransitions {
     private final PhoneStatusBarView mView;
     private final float mIconAlphaWhenOpaque;
 
-    private View mLeftSide, mStatusIcons, mSignalCluster, mClock, mCenterClock, mNetworkTraffic;
+    private View mLeftSide, mStatusIcons, mSignalCluster, mClock, mCenterClock, mNetworkTraffic, mBattery, mCircleBattery;
     private ArrayList<ImageView> mIcons = new ArrayList<ImageView>();
     private ArrayList<ImageView> mIconsReverse = new ArrayList<ImageView>();
     private ArrayList<ImageView> mNotificationIcons = new ArrayList<ImageView>();

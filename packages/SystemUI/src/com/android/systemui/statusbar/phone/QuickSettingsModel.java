@@ -44,6 +44,7 @@ import android.view.inputmethod.InputMethodSubtype;
 import com.android.systemui.R;
 import com.android.systemui.settings.BrightnessController.BrightnessStateChangeCallback;
 import com.android.systemui.settings.CurrentUserTracker;
+import com.android.systemui.BatteryMeterView.BatteryMeterMode;
 import com.android.systemui.statusbar.policy.BatteryController.BatteryStateChangeCallback;
 import com.android.systemui.statusbar.policy.LocationController.LocationSettingsChangeCallback;
 import com.android.systemui.statusbar.policy.NetworkController.NetworkSignalChangedCallback;
@@ -607,6 +608,15 @@ class QuickSettingsModel implements BluetoothStateChangeCallback,
         mBatteryState.pluggedIn = pluggedIn;
         mBatteryCallback.refreshView(mBatteryTile, mBatteryState);
     }
+
+    @Override
+    public void onBatteryMeterShowPercent(boolean showPercent) {
+    }
+
+    @Override    
+    public void onBatteryMeterModeChanged(BatteryMeterMode mode) {
+    }
+            
     void refreshBatteryTile() {
         if (mBatteryCallback == null) {
             return;

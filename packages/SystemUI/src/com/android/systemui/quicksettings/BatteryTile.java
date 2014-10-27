@@ -35,6 +35,7 @@ import android.view.View.OnClickListener;
 import android.view.View.OnLongClickListener;
 
 import com.android.systemui.BatteryMeterView;
+import com.android.systemui.BatteryMeterView.BatteryMeterMode;
 import com.android.systemui.BatteryCircleMeterView;
 import com.android.systemui.R;
 import com.android.systemui.statusbar.phone.QuickSettingsContainerView;
@@ -114,7 +115,15 @@ public class BatteryTile extends QuickSettingsTile implements BatteryStateChange
         mPluggedIn = pluggedIn;
         updateResources();
     }
+    
+    @Override
+    public void onBatteryMeterShowPercent(boolean showPercent) {
+    }
 
+    @Override    
+    public void onBatteryMeterModeChanged(BatteryMeterMode mode) {
+    }
+    
     @Override
     public void updateResources() {
         updateTile();
