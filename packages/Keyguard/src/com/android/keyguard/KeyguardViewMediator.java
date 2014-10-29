@@ -1149,6 +1149,9 @@ public class KeyguardViewMediator {
                 case LAUNCH_CAMERA:
                     handleLaunchCamera();
                     break;
+                case LAUNCH_APPLICATION_WIDGET:
+                    handleLaunchApplicationWidget();
+                    break;
                 case DISMISS:
                     handleDismiss();
                     break;
@@ -1192,8 +1195,16 @@ public class KeyguardViewMediator {
         mKeyguardViewManager.launchCamera();
     }
 
-    protected void handleDispatchEvent(MotionEvent event) {
-        mKeyguardViewManager.dispatch(event);
+    protected void handleLaunchApplicationWidget() {
+        mKeyguardViewManager.launchApplicationWidget();
+    }
+
+    protected void handleDispatchCameraEvent(MotionEvent event) {
+        mKeyguardViewManager.dispatchCameraEvent(event);
+    }
+
+    protected void handleDispatchApplicationWidgetEvent(MotionEvent event) {
+        mKeyguardViewManager.dispatchApplicationWidgetEvent(event);
     }
 
     protected void handleDispatchButtonClickEvent(int buttonId) {
@@ -1452,8 +1463,8 @@ public class KeyguardViewMediator {
         return sMultiUserAvatarCache;
     }
 
-    public void dispatch(MotionEvent event) {
-        Message msg = mHandler.obtainMessage(DISPATCH_EVENT, event);
+    public void dispatchCameraEvent(MotionEvent event) {
+        Message msg = mHandler.obtainMessage(DISPATCH_CAMERA_EVENT, event);
         mHandler.sendMessage(msg);
     }
 
@@ -1465,6 +1476,11 @@ public class KeyguardViewMediator {
 
     public void launchCamera() {
         Message msg = mHandler.obtainMessage(LAUNCH_CAMERA);
+        mHandler.sendMessage(msg);
+    }
+
+    public void launchApplicationWidget() {
+        Message msg = mHandler.obtainMessage(LAUNCH_APPLICATION_WIDGET);
         mHandler.sendMessage(msg);
     }
 

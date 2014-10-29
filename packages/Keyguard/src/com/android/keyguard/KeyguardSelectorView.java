@@ -75,6 +75,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
     private boolean mIsBouncing;
     private boolean mCameraDisabled;
     private boolean mSearchDisabled;
+    private boolean mApplicationWidgetDisabled;
     private LockPatternUtils mLockPatternUtils;
     private SecurityMessageDisplay mSecurityMessageDisplay;
     private Drawable mBouncerFrame;
@@ -325,6 +326,7 @@ public class KeyguardSelectorView extends LinearLayout implements KeyguardSecuri
                 .getAssistIntent(mContext, false, UserHandle.USER_CURRENT) != null;
         mCameraDisabled = cameraDisabledByAdmin || disabledBySimState || !cameraTargetPresent
                 || !currentUserSetup;
+        mApplicationWidgetDisabled = !currentUserSetup; //TODO(): Hook up to DevicePolicyManager.
         mSearchDisabled = disabledBySimState || !searchActionAvailable || !searchTargetPresent
                 || !currentUserSetup;
         updateResources();

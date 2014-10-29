@@ -41,6 +41,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.StatusBarManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
@@ -300,8 +301,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
     ImageView mSettingsButton, mNotificationButton;
 
     // carrier/wifi label
+    private View mCarrierLableContainer;
     private TextView mCarrierLabel;
-    private TextView mSubsLabel;
+    private View mSubsLabel;
     private boolean mCarrierLabelVisible = false;
     private int mCarrierLabelHeight;
     private TextView mEmergencyCallLabel;
@@ -1262,7 +1264,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mStatusBarView.getPhoneStatusBarTransitions().addText((TextView) mClock);
         mStatusBarView.getPhoneStatusBarTransitions().addText((TextView) mClockCenter);
         mStatusBarView.getPhoneStatusBarTransitions().addText((TextView) mNetworkTraffic);
-
+        mCarrierLableContainer = mStatusBarWindow.findViewById(R.id.carrier_label_container);
         if (MSimTelephonyManager.getDefault().isMultiSimEnabled()) {
             mMSimNetworkController = new MSimNetworkController(mContext);
             mMSimSignalClusterView = (MSimSignalClusterView)
@@ -1287,7 +1289,12 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             }
 
             mCarrierLabel = (TextView)mStatusBarWindow.findViewById(R.id.carrier_label);
-            mSubsLabel = (TextView)mStatusBarWindow.findViewById(R.id.subs_label);
+            mSubsLabel = mStatusBarWindow.findViewById(R.id.subs_label);
+            int numPhones = MSimTelephonyManager.getDefault().getPhoneCount();
+            if (numPhones == 3) {
+                mSubsLabel.findViewById(R.id.sub2_separator).setVisibility(View.VISIBLE);
+                mSubsLabel.findViewById(R.id.sub3_label).setVisibility(View.VISIBLE);
+            }
             mShowCarrierInPanel = (mCarrierLabel != null);
 
             if (DEBUG) Log.v(TAG, "carrierlabel=" + mCarrierLabel + " show=" +
@@ -1579,13 +1586,103 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
     };
 
-    private View.OnLongClickListener mRecentsLongPressListener = new View.OnLongClickListener() {
+    private Runnable mDefaultRecentsLongPressHandler = new Runnable() {
         @Override
-        public boolean onLongClick(View v) {
+        public void run() {
+            mHandler.removeCallbacks(mDefaultRecentsLongPressHandler);
             cancelPreloadingRecentTasksList();
-            return ActionUtils.switchToLastApp(mContext, mCurrentUserId);
+            boolean switched = ActionUtils.switchToLastApp(mContext, mCurrentUserId);
+            if (switched) {
+                mNavigationBarView.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+            }
+            mRecentsLongPressed = true;
         }
     };
+
+    private Runnable mIntentRecentsLongPressHandler = new Runnable() {
+        @Override
+        public void run() {
+            mHandler.removeCallbacks(mIntentRecentsLongPressHandler);
+            cancelPreloadingRecentTasksList();
+
+            // allow touch events to leave the system ui
+            mNavigationBarView.setSlippery(true);
+            mNavigationBarView.disableSearchBar();
+            mRecentsLongPressed = true;
+
+            // Let the default activity handle this
+            Intent intent = new Intent(Intent.ACTION_RECENTS_LONG_PRESS);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                    | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            ComponentName componentName = getRecentsTouchHandlerComponentName();
+            if (componentName != null) {
+                intent.setComponent(componentName);
+                mContext.startActivityAsUser(intent, new UserHandle(UserHandle.USER_CURRENT));
+            }
+        }
+    };
+    private Runnable getRecentsLongPressHandler(boolean custom) {
+        return custom ? mIntentRecentsLongPressHandler : mDefaultRecentsLongPressHandler;
+    }
+
+    private boolean mRecentsLongPressed = false;
+    private View.OnTouchListener mRecentsTouchListener = new View.OnTouchListener() {
+        @Override
+        public boolean onTouch(View v, MotionEvent event) {
+            if (event.getAction() == MotionEvent.ACTION_DOWN) {
+                boolean hasIntentHandler = hasRecentsTouchHandler();
+                Runnable recentsLongPressHandler = getRecentsLongPressHandler(hasIntentHandler);
+                mHandler.removeCallbacks(recentsLongPressHandler);
+                mHandler.postDelayed(recentsLongPressHandler,
+                        ViewConfiguration.getLongPressTimeout());
+            } else if (event.getAction() == MotionEvent.ACTION_UP ||
+                    event.getAction() == MotionEvent.ACTION_CANCEL) {
+                recentsTouchCleanupHandler(hasRecentsTouchHandler());
+            }
+            return mRecentsPreloadOnTouchListener.onTouch(v, event);
+        }
+    };
+
+    private void recentsTouchCleanupHandler(boolean hasIntentHandler) {
+        if (hasIntentHandler && mRecentsLongPressed) {
+            mNavigationBarView.setSlippery(false);
+            mNavigationBarView.enableSearchBar();
+        }
+        mRecentsLongPressed = false;
+        mHandler.removeCallbacks(getRecentsLongPressHandler(hasIntentHandler));
+    }
+
+    private ComponentName getRecentsTouchHandlerComponentName() {
+        String componentString = Settings.Secure.getString(mContext.getContentResolver(),
+                Settings.Secure.RECENTS_LONG_PRESS_ACTIVITY);
+        return componentString == null ? null : ComponentName.unflattenFromString(componentString);
+    }
+
+    private boolean hasRecentsTouchHandler() {
+        // Check if ACTION_RECENTS_LONG_PRESS has a registered handler
+        PackageManager pm = mContext.getPackageManager();
+        Intent intent = new Intent(Intent.ACTION_RECENTS_LONG_PRESS);
+
+        ComponentName defaultComponent = getRecentsTouchHandlerComponentName();
+        if (defaultComponent == null) {
+            return false;
+        }
+
+        // Query PackageManager for all packages that can handle this intent
+        List<ResolveInfo> activities = pm.queryIntentActivities(intent,
+                PackageManager.MATCH_DEFAULT_ONLY);
+        if (activities.size() > 0) {
+            for (ResolveInfo info : activities) {
+                // Check that we have a valid ComponentName before launching
+                ComponentName targetComponent = new ComponentName(info.activityInfo.packageName,
+                        info.activityInfo.name);
+                if (targetComponent.equals(defaultComponent)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 
     private int mShowSearchHoldoff = 0;
     private Runnable mShowSearchPanel = new Runnable() {
@@ -1638,6 +1735,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         if (mNavigationBarView.getSearchLight() != null) {
             mNavigationBarView.getSearchLight().setOnTouchListener(mHomeSearchActionListener);
         }
+
+        mNavigationBarView.setListeners(mRecentsClickListener, mRecentsTouchListener,
+                mHomeSearchActionListener);
         updateSearchPanel();
     }
 
@@ -2049,11 +2149,16 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
     protected void updateCarrierLabelVisibility(boolean force) {
         if (!mShowCarrierInPanel) return;
+        final boolean isMultiSim =  MSimTelephonyManager.getDefault().isMultiSimEnabled();
+        int labelHeight = mCarrierLabelHeight;
+        if (isMultiSim) {
+            labelHeight = labelHeight * 2; //SubLabel height is same a carrier label
+        }
         // The idea here is to only show the carrier label when there is enough room to see it,
         // i.e. when there aren't enough notifications to fill the panel.
         if (SPEW) {
             Log.d(TAG, String.format("pileh=%d scrollh=%d carrierh=%d",
-                    mPile.getHeight(), mScrollView.getHeight(), mCarrierLabelHeight));
+                    mPile.getHeight(), mScrollView.getHeight(), labelHeight));
         }
 
         final boolean emergencyCallsShownElsewhere = mEmergencyCallLabel != null;
@@ -2063,7 +2168,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         final boolean makeVisible =
             !(emergencyCallsShownElsewhere && isEmergencyOnly)
-            && mPile.getHeight() < (mNotificationPanel.getHeight() - mCarrierLabelHeight - mNotificationHeaderHeight)
+            && mPile.getHeight() < (mNotificationPanel.getHeight() - labelHeight - mNotificationHeaderHeight)
             && mScrollView.getVisibility() == View.VISIBLE
             && !mAnimatingFlip;
 
@@ -2072,11 +2177,11 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
             if (DEBUG) {
                 Log.d(TAG, "making carrier label " + (makeVisible?"visible":"invisible"));
             }
-            mCarrierLabel.animate().cancel();
+            mCarrierLableContainer.animate().cancel();
             if (makeVisible) {
-                mCarrierLabel.setVisibility(View.VISIBLE);
+                mCarrierLableContainer.setVisibility(View.VISIBLE);
             }
-            mCarrierLabel.animate()
+            mCarrierLableContainer.animate()
                 .alpha(makeVisible ? 1f : 0f)
                 //.setStartDelay(makeVisible ? 500 : 0)
                 //.setDuration(makeVisible ? 750 : 100)
@@ -2085,8 +2190,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                     @Override
                     public void onAnimationEnd(Animator animation) {
                         if (!mCarrierLabelVisible) { // race
-                            mCarrierLabel.setVisibility(View.INVISIBLE);
-                            mCarrierLabel.setAlpha(0f);
+                            mCarrierLableContainer.setVisibility(View.INVISIBLE);
+                            mCarrierLableContainer.setAlpha(0f);
                         }
                     }
                 })
@@ -4199,7 +4304,14 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
     private void recreateStatusBar() {
         mRecreating = true;
-        
+
+        if (mMSimNetworkController != null) {
+            mMSimNetworkController.clearSubsLabelView();
+            mContext.unregisterReceiver(mMSimNetworkController);
+        } else if (mNetworkController != null) {
+            mContext.unregisterReceiver(mNetworkController);
+        }
+
         removeHeadsUpView();
   
         mStatusBarContainer.removeAllViews();

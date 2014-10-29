@@ -90,6 +90,9 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
         StatusBarPanel, Animator.AnimatorListener {
     static final String TAG = "RecentsPanelView";
     static final boolean DEBUG = PhoneStatusBar.DEBUG || false;
+    private static final String  ANDROID_SETTINGS = "com.android.settings";
+    private static final String ANDROID_PROTECTED_APPS =
+            "com.android.settings.applications.ProtectedAppsActivity";
     private PopupMenu mPopup;
     private View mRecentsScrim;
     private View mRecentsNoApps;
@@ -111,6 +114,7 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
     private int mRecentItemLayoutId;
     private boolean mHighEndGfx;
     private ImageView mClearRecents;
+    private ImageView mProtectedApps;
 
     private RecentsActivity mRecentsActivity;
 
@@ -376,7 +380,8 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                     && (mRecentTaskDescriptions.size() == 0);
             mRecentsNoApps.setAlpha(1f);
             mRecentsNoApps.setVisibility(noApps ? View.VISIBLE : View.INVISIBLE);
-
+            
+            
             boolean showClearAllButton = Settings.System.getInt(mContext.getContentResolver(), Settings.System.SHOW_CLEAR_RECENTS_BUTTON, 1) == 1;
 
             if (showClearAllButton) {
@@ -415,6 +420,13 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                 mPopup.dismiss();
             }
         }
+    }
+
+    private boolean noProtectedApps() {
+        String protectedComponents = Settings.Secure.getString(mContext.getContentResolver(),
+                Settings.Secure.PROTECTED_COMPONENTS);
+        protectedComponents = protectedComponents == null ? "" : protectedComponents;
+        return (protectedComponents.equals(""));
     }
 
     protected void onAttachedToWindow () {
@@ -516,6 +528,22 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                 public void onClick(View v) {
                     mRecentsContainer.removeAllViewsInLayout();
                     mClearRecents.setVisibility(View.INVISIBLE);
+                }
+            });
+        }
+        mProtectedApps = (ImageView) findViewById(R.id.protected_apps);
+        if (mProtectedApps != null){
+            mProtectedApps.setOnClickListener(new OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    dismiss();
+                    // Launch protected components
+                    Intent intent = new Intent();
+                    intent.setClassName(ANDROID_SETTINGS, ANDROID_PROTECTED_APPS);
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                            | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+                    mContext.startActivityAsUser(intent, null,
+                        new UserHandle(UserHandle.USER_CURRENT));
                 }
             });
         }
@@ -854,6 +882,7 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
             Settings.Secure.DEVELOPMENT_SHORTCUT, 0) == 0) {
             popup.getMenu().findItem(R.id.recent_force_stop).setVisible(false);
             popup.getMenu().findItem(R.id.recent_wipe_app).setVisible(false);
+            popup.getMenu().findItem(R.id.recent_uninstall).setVisible(false);
         } else {
             ViewHolder viewHolder = (ViewHolder) selectedView.getTag();
             if (viewHolder != null) {
@@ -868,7 +897,9 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
                           == ApplicationInfo.FLAG_SYSTEM
                           || mDpm.packageHasActiveAdmins(ad.packageName)) {
                         popup.getMenu()
-                        .findItem(R.id.notification_inspect_item_wipe_app).setEnabled(false);
+                        .findItem(R.id.recent_wipe_app).setEnabled(false);
+                        popup.getMenu()
+                        .findItem(R.id.recent_uninstall).setEnabled(false);
                     } else {
                         Log.d(TAG, "Not a 'special' application");
                     }
@@ -967,6 +998,12 @@ public class RecentsPanelView extends FrameLayout implements OnItemClickListener
             lp.topMargin = insets.top;
             lp.rightMargin = insets.right;
             mClearRecents.setLayoutParams(lp);
+        }
+        if (mProtectedApps != null) {
+            MarginLayoutParams lp = (MarginLayoutParams) mProtectedApps.getLayoutParams();
+            lp.topMargin = insets.top;
+            lp.rightMargin = insets.right;
+            mProtectedApps.setLayoutParams(lp);
         }
 
         return super.fitSystemWindows(insets);

@@ -85,6 +85,8 @@
   <string name="permdesc_setKeyguardWallpaper">Омогућава апликацији да промени позадину на закључаном екрану.</string>
   <string name="permlab_useHardwareFramework">користи хардверски оквир</string>
   <string name="permdesc_useHardwareFramework">Дозвољава апликацији приступ CM хардверском оквиру.</string>
+  <string name="permlab_keyguardApplicationWidget">постави додатак апликације закључаног екрана</string>
+  <string name="permdesc_keyguardApplicationWidget">Дозволи апликацији да постави апликациони додатак на закључани екран.</string>
   <string name="immersive_mode_confirmation_bottom">Превуци нагоре од дна за излазак из целог екрана.</string>
   <string name="app_ops_access_camera">приступ камери</string>
   <string name="app_ops_access_location">приступ твојој локацији</string>
@@ -137,8 +139,6 @@
   <string name="extmedia_format_message_cm" product="nosdcard">Сви подаци са твог USB складишта (испод пута \'%1$s\') ће бити избрисани. Ова акција се не може преокренути!</string>
   <string name="extmedia_format_message_cm" product="default">Сви подаци са твоје картице (испод пута \'%1$s\') ће бити избрисани. Ова акција се не може преокренути!</string>
   <string name="usb_storage_notification_manage_message">Додирни да управљаш</string>
-<<<<<<< HEAD
-=======
   <string name="sd_ext_media_checking_notification_title">Припрема SD картице\u2026</string>
   <string name="sd_ext_media_checking_notification_message">Провера SD картице за грешкама\u2026</string>
   <string name="sd_ext_media_nofs_notification_title">Празна SD картица</string>
@@ -174,5 +174,7 @@
   <string name="stk_cc_ss_to_dial">SS захтев је модификован на DIAL захтев.</string>
   <string name="stk_cc_ss_to_ussd">SS захтев је модификован на USSD захтев.</string>
   <string name="stk_cc_ss_to_ss">SS захтев је модификован на нови SS захтев.</string>
->>>>>>> cca7647487d10046ebebce550e45ccb58248f453
+  <string name="theme_install_error_title">Инсталирање теме није успело</string>
+  <string name="theme_install_error_message">%s инсталирање није успело</string>
+  <string name="storage_uicc">UICC складиште</string>
 </resources>

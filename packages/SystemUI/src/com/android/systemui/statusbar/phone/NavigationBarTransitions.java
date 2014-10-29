@@ -180,6 +180,7 @@ public final class NavigationBarTransitions extends BarTransitions {
         fadeContent(mView.getCameraButton(), alpha);
         fadeContent(mView.getNotifsButton(), alpha);
         fadeContent(mView.getSearchLight(), alpha);
+        fadeContent(mView.getApplicationWidgetButton(), alpha);
     }
 
     private void fadeContent(View v, float alpha) {

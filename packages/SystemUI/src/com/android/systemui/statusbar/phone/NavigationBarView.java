@@ -31,13 +31,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.ContentObserver;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -148,6 +152,9 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
 
     private Resources mThemedResources;
 
+    private String mApplicationWidgetPackageName;
+    private byte[] mApplicationWidgetIcon;
+
     private class NavTransitionListener implements TransitionListener {
         private boolean mBackTransitioning;
         private boolean mHomeAppearing;
@@ -207,11 +214,13 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
                 KeyguardTouchDelegate.getInstance(getContext()).launchCamera();
             } else if (v.getId() == R.id.search_light) {
                 KeyguardTouchDelegate.getInstance(getContext()).showAssistant();
+            } else if (v.getId() == R.id.application_widget_button) {
+                KeyguardTouchDelegate.getInstance(getContext()).launchApplicationWidget();
             }
         }
     };
 
-    private final OnTouchListener mCameraTouchListener = new OnTouchListener() {
+    private final OnTouchListener mTouchListener = new OnTouchListener() {
         @Override
         public boolean onTouch(View view, MotionEvent event) {
             switch (event.getAction()) {
@@ -226,7 +235,12 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
                     mBarTransitions.setContentVisible(true);
                     break;
             }
-            return KeyguardTouchDelegate.getInstance(getContext()).dispatch(event);
+            if (view.getId() == R.id.camera_button) {
+                return KeyguardTouchDelegate.getInstance(getContext()).dispatchCameraEvent(event);
+            } else if (view.getId() == R.id.application_widget_button) {
+                return KeyguardTouchDelegate.getInstance(getContext()).dispatchApplicationWidgetEvent(event);
+            }
+            return false;
         }
     };
 
@@ -328,6 +342,14 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
 
     public void setBar(BaseStatusBar phoneStatusBar) {
         mDelegateHelper.setBar(phoneStatusBar);
+    }
+
+    public void disableSearchBar() {
+        mDelegateHelper.setDisabled(true);
+    }
+
+    public void enableSearchBar() {
+        mDelegateHelper.setDisabled(false);
     }
 
     @Override
@@ -442,7 +464,7 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
 
         super.setLayoutDirection(layoutDirection);
     }
-
+    
     public void notifyScreenOn(boolean screenOn) {
         mScreenOn = screenOn;
         setDisabledFlags(mDisabledFlags, true);
@@ -994,13 +1016,16 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
 
         // Add a touch handler or accessibility click listener for camera and search buttons
         // for all view orientations.
+        final OnTouchListener onTouchListener = touchEnabled ? null : mTouchListener;
         final OnClickListener onClickListener = touchEnabled ? mAccessibilityClickListener : null;
-        final OnTouchListener onTouchListener = touchEnabled ? null : mCameraTouchListener;
         boolean hasCamera = false;
+        boolean hasApplicationWidget = false;
         for (int i = 0; i < mRotatedViews.length; i++) {
             final View cameraButton = mRotatedViews[i].findViewById(R.id.camera_button);
             final View notifsButton = mRotatedViews[i].findViewById(R.id.show_notifs);
             final View searchLight = mRotatedViews[i].findViewById(R.id.search_light);
+            final View applicationWidgetButton =
+                    mRotatedViews[i].findViewById(R.id.application_widget_button);
             if (cameraButton != null) {
                 hasCamera = true;
                 cameraButton.setOnTouchListener(onTouchListener);
@@ -1012,8 +1037,13 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
             if (searchLight != null) {
                 searchLight.setOnClickListener(onClickListener);
             }
+            if (applicationWidgetButton != null) {
+                hasApplicationWidget = true;
+                applicationWidgetButton.setOnTouchListener(onTouchListener);
+                applicationWidgetButton.setOnClickListener(onClickListener);
+            }
         }
-        if (hasCamera) {
+        if (hasCamera || hasApplicationWidget) {
             // Warm up KeyguardTouchDelegate so it's ready by the time the camera button is touched.
             // This will connect to KeyguardService so that touch events are processed.
             KeyguardTouchDelegate.getInstance(mContext);
@@ -1118,6 +1148,26 @@ public class NavigationBarView extends LinearLayout implements BaseStatusBar.Nav
     }
     */
 
+    private BroadcastReceiver mSetApplicationWidgetReceiver =
+            new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    if (Intent.ACTION_SET_KEYGUARD_APPLICATION_WIDGET.equals(intent.getAction())) {
+                        mApplicationWidgetPackageName = intent.getStringExtra(
+                                Intent.EXTRA_KEYGUARD_APPLICATION_WIDGET_PACKAGE_NAME);
+                        mApplicationWidgetIcon = intent.getByteArrayExtra(
+                                Intent.EXTRA_KEYGUARD_APPLICATION_WIDGET_ICON);
+                        // Force update the buttons.
+                        setDisabledFlags(mDisabledFlags, true);
+                    } else if (Intent.ACTION_UNSET_KEYGUARD_APPLICATION_WIDGET.equals(
+                            intent.getAction())) {
+                        mApplicationWidgetPackageName = null;
+                        mApplicationWidgetIcon = null;
+                        // Force update the buttons.
+                        setDisabledFlags(mDisabledFlags, true);
+                    }
+                }
+            };
 
     private String getResourceName(int resId) {
         if (resId != 0) {
