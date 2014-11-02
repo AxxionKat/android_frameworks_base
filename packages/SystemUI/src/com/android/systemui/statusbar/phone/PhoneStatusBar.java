@@ -2047,12 +2047,20 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
     }
 
+    protected boolean hasVisibleNotifications() { 
+        return mNotificationData.hasVisibleItems(); 
+    } 
+	 
+    protected boolean hasClearableNotifications() { 
+        return mNotificationData.hasClearableItems(); 
+    } 
+ 		
     @Override
     protected void setAreThereNotifications() {
         final boolean any = mNotificationData.size() > 0;
 
-        final boolean clearable = any && mNotificationData.hasClearableItems();
-
+        final boolean clearable = any && hasClearableNotifications();
+       
         if (SPEW) {
             Log.d(TAG, "setAreThereNotifications: N=" + mNotificationData.size()
                     + " any=" + any + " clearable=" + clearable);
@@ -2099,8 +2107,8 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 nlo.setVisibility(View.VISIBLE);
             }
             nlo.animate()
-                .alpha(showDot?1:0)
-                .setDuration(showDot?750:250)
+                .alpha(showDot ? 1 : 0) 
+                .setDuration(showDot ? 750 : 250) 
                 .setInterpolator(new AccelerateInterpolator(2.0f))
                 .setListener(showDot ? null : new AnimatorListenerAdapter() {
                     @Override
@@ -2128,6 +2136,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         int clockLocation = Settings.System.getIntForUser(
             resolver, Settings.System.STATUSBAR_CLOCK_STYLE, 0,
             UserHandle.USER_CURRENT);
+            
+        updateNotificationIcons(); 
+                    
         if (clockLocation == 0 && clock != null) {
             clock.setVisibility(mClockEnabled && mShowClock ? View.VISIBLE : View.GONE);
         }
@@ -3174,9 +3185,15 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         if (mNavigationBarView != null) {
             mNavBackgroundMode = (mNavigationBarMode == MODE_OPAQUE);			
             mNavigationBarView.getBarTransitions().transitionTo(mNavigationBarMode,
-                    shouldAnimateBarTransition(mNavigationBarMode, mNavigationBarWindowState));
-            int sbbMode = mStatusBarWindowState == WINDOW_STATE_HIDDEN ? MODE_TRANSPARENT : sbMode;
-            mNavigationBarView.getStatusBarBlockerTransitions().transitionTo(sbbMode, animateSb);
+                   shouldAnimateBarTransition(mNavigationBarMode, mNavigationBarWindowState));
+            // The status bar blocker is only needed if both 
+ 	        // - the status bar is visible and 
+ 		    // - the navigation bar is translucent (as otherwise there is no 
+            //   visual 'gap' which needs to be filled) 
+            boolean sbbNeeded = mStatusBarWindowState != WINDOW_STATE_HIDDEN 
+ 		    && mNavigationBarMode == MODE_TRANSLUCENT; 
+ 	        int sbbMode = sbbNeeded ? sbMode : MODE_TRANSPARENT; 
+ 	        mNavigationBarView.getStatusBarBlockerTransitions().transitionTo(sbbMode, animateSb);
         }
     }
 
@@ -3324,7 +3341,35 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
     }
 
+   @Override 
+    public void animateStatusBarOut() { 
+ 	    // ensure to not overload 
+     if (mStatusBarView.getVisibility() == View.VISIBLE) { 
+ 		 mHandler.post(new Runnable() { 
+ 	  public void run() { 
+ 	     mStatusBarView.setVisibility(View.GONE); 
+         mStatusBarView.startAnimation(loadAnim(com.android.internal.R.anim.push_up_out, null)); 
+           } 
+        }); 
+      } 
+   } 
+ 
+    @Override 
+     public void animateStatusBarIn() { 
+        // ensure to not overload 
+        if (mStatusBarView.getVisibility() == View.GONE) { 
+ 	        mHandler.post(new Runnable() { 
+        public void run() { 
+ 		    mStatusBarView.setVisibility(View.VISIBLE); 
+            mStatusBarView.startAnimation(loadAnim(com.android.internal.R.anim.push_down_in, null)); 
+              } 
+          }); 
+       } 
+    } 
+ 		 
     private class MyTicker extends Ticker {
+ 	   private boolean hasTicked = false; 
+
         MyTicker(Context context, View sb) {
             super(context, sb);
         }
@@ -3339,13 +3384,15 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 mTickerView.startAnimation(loadAnim(com.android.internal.R.anim.push_up_in, null));
                 mStatusBarContents.startAnimation(loadAnim(com.android.internal.R.anim.push_up_out, null));
                 mCenterClockLayout.startAnimation(
-                loadAnim(com.android.internal.R.anim.push_up_out, null));            
+                loadAnim(com.android.internal.R.anim.push_up_out, null));     
+                hasTicked = true;                        
             }
         }
 
         @Override
         public void tickerDone() {
 	    if (!mHaloActive) {
+			   if (!hasTicked) return; 
                 mStatusBarContents.setVisibility(View.VISIBLE);
                 mCenterClockLayout.setVisibility(View.VISIBLE);           
                 mTickerView.setVisibility(View.GONE);
@@ -3353,6 +3400,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 mTickerView.startAnimation(loadAnim(com.android.internal.R.anim.push_down_out,
                             mTickingDoneListener));
                 mCenterClockLayout.startAnimation(loadAnim(com.android.internal.R.anim.push_down_in, null));	       
+                hasTicked = false; 	        
 	        }
         }
 
@@ -4175,6 +4223,10 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         copyNotifications(notifications, mNotificationData);
         mNotificationData.clear();
 
+        // Halts the old ticker. A new ticker is created in makeStatusBarView() so 
+        // this MUST happen before makeStatusBarView(); 
+ 		mTicker.halt(); 
+ 		
         makeStatusBarView();
         repositionNavigationBar();
         addHeadsUpView();
@@ -4214,6 +4266,20 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         mRecreating = false;
         
         updateHalo();        
+        
+       // Stop the command queue until the new status bar container settles and has a layout pass 
+        mCommandQueue.pause(); 
+        mStatusBarContainer.requestLayout(); 
+ 	    mStatusBarContainer.getViewTreeObserver().addOnGlobalLayoutListener( 
+ 		new ViewTreeObserver.OnGlobalLayoutListener() { 
+ 
+        @Override 
+        public void onGlobalLayout() { 
+ 	    mStatusBarContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this); 
+ 	    mCommandQueue.resume(); 
+ 	    mRecreating = false; 
+ 	      } 
+ 	   });         
     }
 
     private void removeAllViews(ViewGroup parent) {
