@@ -3387,35 +3387,9 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 mTicker.addEntry(n);
             }
         }
-    }
-
-   @Override 
-    public void animateStatusBarOut() { 
- 	    // ensure to not overload 
-     if (mStatusBarView.getVisibility() == View.VISIBLE) { 
- 		 mHandler.post(new Runnable() { 
- 	  public void run() { 
- 	     mStatusBarView.setVisibility(View.GONE); 
-         mStatusBarView.startAnimation(loadAnim(com.android.internal.R.anim.push_up_out, null)); 
-           } 
-        }); 
-      } 
    } 
- 
-    @Override 
-     public void animateStatusBarIn() { 
-        // ensure to not overload 
-        if (mStatusBarView.getVisibility() == View.GONE) { 
- 	        mHandler.post(new Runnable() { 
-        public void run() { 
- 		    mStatusBarView.setVisibility(View.VISIBLE); 
-            mStatusBarView.startAnimation(loadAnim(com.android.internal.R.anim.push_down_in, null)); 
-              } 
-          }); 
-       } 
-    } 
  		 
-    private class MyTicker extends Ticker {
+   private class MyTicker extends Ticker {
  	   private boolean hasTicked = false; 
 
         MyTicker(Context context, View sb) {
@@ -3424,7 +3398,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         @Override
         public void tickerStarting() {
-	    if (!mHaloActive) {
+			if (!mHaloActive) {
                 mTicking = true;
                 mStatusBarContents.setVisibility(View.GONE);
                 mCenterClockLayout.setVisibility(View.GONE);                
@@ -3439,7 +3413,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
 
         @Override
         public void tickerDone() {
-	    if (!mHaloActive) {
+			if (!mHaloActive) {
 			   if (!hasTicked) return; 
                 mStatusBarContents.setVisibility(View.VISIBLE);
                 mCenterClockLayout.setVisibility(View.VISIBLE);           
@@ -3453,25 +3427,27 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         }
 
         public void tickerHalting() {
+			
              if (mStatusBarContents.getVisibility() != View.VISIBLE) {
                  mStatusBarContents.setVisibility(View.VISIBLE);
                  mStatusBarContents
                          .startAnimation(loadAnim(com.android.internal.R.anim.fade_in, null));
              }
+             
              mTickerView.setVisibility(View.GONE);
+             
              // we do not animate the ticker away at this point, just get rid of it (b/6992707)
-	    if (!mHaloActive) {
-                mStatusBarContents.setVisibility(View.VISIBLE);
+			 if (!mHaloActive) {
+				mStatusBarContents.setVisibility(View.VISIBLE);
                 mCenterClockLayout.setVisibility(View.VISIBLE);   
                 mTickerView.setVisibility(View.GONE);
                 mStatusBarContents.startAnimation(loadAnim(com.android.internal.R.anim.fade_in, null));
                 mCenterClockLayout.startAnimation(loadAnim(com.android.internal.R.anim.fade_in, null));              
                 // we do not animate the ticker away at this point, just get rid of it (b/6992707)
-            }
+			}
         }
-    }
-
-    Animation.AnimationListener mTickingDoneListener = new Animation.AnimationListener() {;
+    
+    Animation.AnimationListener mTickingDoneListener = new Animation.AnimationListener() {
         public void onAnimationEnd(Animation animation) {
             mTicking = false;
         }
@@ -4280,18 +4256,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
         updateHalo();        
         
        // Stop the command queue until the new status bar container settles and has a layout pass 
-        mCommandQueue.pause(); 
-        mStatusBarContainer.requestLayout(); 
- 	    mStatusBarContainer.getViewTreeObserver().addOnGlobalLayoutListener( 
- 		new ViewTreeObserver.OnGlobalLayoutListener() { 
- 
-        @Override 
-        public void onGlobalLayout() { 
- 	    mStatusBarContainer.getViewTreeObserver().removeOnGlobalLayoutListener(this); 
- 	    mCommandQueue.resume(); 
- 	    mRecreating = false; 
- 	      } 
- 	   });         
+        mStatusBarContainer.requestLayout();        
     }
 
     private void removeAllViews(ViewGroup parent) {
