@@ -3446,6 +3446,7 @@ public class PhoneStatusBar extends BaseStatusBar implements DemoMode,
                 // we do not animate the ticker away at this point, just get rid of it (b/6992707)
 			}
         }
+    }
     
     Animation.AnimationListener mTickingDoneListener = new Animation.AnimationListener() {
         public void onAnimationEnd(Animation animation) {
